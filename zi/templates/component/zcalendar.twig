@@ -1,0 +1,90 @@
+{% extends 'index.twig' %}
+{% block content %}
+<!-- Calendar -->
+<div class="block">
+	<div class="fullcalendar"></div>
+</div>
+<!-- /calendar -->
+
+<!-- Calendar inside panel -->
+<div class="panel panel-default">
+	<div class="panel-heading">
+		<h6 class="panel-title"><i class="icon-calendar2"></i> Calendar inside panel</h6>
+	</div>
+	<div class="fullcalendar"></div>
+</div>
+<!-- /calendar inside panel -->
+
+<!-- Calendar inside panel body -->
+<div class="panel panel-primary">
+	<div class="panel-heading">
+		<h6 class="panel-title"><i class="icon-calendar2"></i> Calendar inside panel body</h6>
+	</div>
+	<div class="panel-body">
+		<div class="fullcalendar"></div>
+	</div>
+</div>
+<!-- /calendar inside panel body -->
+{% endblock %}
+{% block js %}
+<script type="text/javascript" src="assets/js/plugins/interface/fullcalendar.min.js"></script>
+<script type="text/javascript">
+$(function() {
+	//===== Fullcalendar =====//
+
+	var date = new Date();
+	var calendar = $('.fullcalendar').fullCalendar({
+		header: {
+			left: 'prev,next,today',
+			center: 'title',
+			right: 'month,agendaWeek,agendaDay'
+		},
+		selectable: true,
+		selectHelper: true,
+		select: function(start, end, allDay) {
+			alert('Clicked on the entire day: ' + date);
+		},
+		dayClick: function(date, allDay, jsEvent, view) {
+
+			if (allDay) {
+				alert('Clicked on the entire day: ' + date);
+			} else {
+				alert('Clicked on the slot: ' + date);
+			}
+			   alert('Coordinates: ' + jsEvent.pageX + ',' + jsEvent.pageY);
+			   alert('Current view: ' + view.name);
+            // change the day's background color just for fun
+            //$(this).css('background-color', 'red');
+
+        },
+        eventClick: function(calEvent, jsEvent, view) {
+
+            alert('Event: ' + calEvent.title);
+            alert('Coordinates: ' + jsEvent.pageX + ',' + jsEvent.pageY);
+            alert('View: ' + view.name);
+
+		       // change the border color just for fun
+		       $(this).css('border-color', 'red');
+
+        },
+        //editable: true,
+        eventSources: [
+         {
+            url : "{{ urlFor('cal') }}",
+            color : 'black',
+            textColor : 'white'
+         },
+         {
+            url : "{{ urlFor('cal') }}",
+            color : 'pink',
+            textColor : 'black'
+         }
+        ]
+   });
+/* Render hidden calendar on tab show */
+$('a[data-toggle="tab"]').on('shown.bs.tab', function () {
+	$('.fullcalendar').fullCalendar('render');
+});
+});
+</script>
+{% endblock %}

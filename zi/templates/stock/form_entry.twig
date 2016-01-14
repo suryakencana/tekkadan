@@ -1,0 +1,327 @@
+{% extends 'index.twig' %}
+{% block basecss %}
+    <link rel="stylesheet" href="{{baseurl}}assets/plugins/bootstrap-table/dist/bootstrap-table.css"/>
+    <link rel="stylesheet" href="{{baseurl}}assets/plugins/thickbox/css/thickbox.css"/>
+{% endblock %}
+
+{% block js %}
+    <script type="text/javascript" src="{{baseurl}}assets/js/jquery-ui.min.js"></script>
+    <script type="text/javascript" src="{{baseurl}}assets/plugins/bootstrap-table/dist/bootstrap-table.js"></script>
+    <script type="text/javascript" src="{{baseurl}}assets/js/plugins/forms/select2.min.js"></script>
+    <script type="text/javascript" src="{{baseurl}}assets/js/plugins/interface/moment.js"></script>
+    <script type="text/javascript" src="{{baseurl}}assets/js/plugins/interface/timepicker.min.js"></script>
+    <script type="text/javascript" src="{{baseurl}}assets/plugins/thickbox/js/thickbox.js"></script>
+    <script type="text/javascript" src="{{baseurl}}assets/plugins/validate.min.js"></script>
+    <script type="text/javascript" charset="utf-8">
+        validate.validators.presence.options = {message: "Harap data diisi terlebih dahulu"};
+        const ACTION_RECEIPT = 'MASUK';
+        const ACTION_ISSUE = 'KELUAR';
+        const ACTION_TRANSFER = 'TRANSFER';
+        const ACTION_REPACK = 'REPACK';
+        var tb_pathToImage = "{{baseurl}}assets/plugins/thickbox/img/ico_waiting.gif";
+        var $griddetail = $('#table-detail');
+        var warehouse = [];
+
+        function insertData(data)
+        {
+            var results = [],
+                    price = warehouse['tipe'] == ACTION_RECEIPT || warehouse['tipe'] === ACTION_REPACK && data['to_warehouse'] !== "" ? data['item_price'].replace(/,/gi, "") : data['item_price_rate'].replace(/,/gi, ""),
+                    qty = data['item_qty'].replace(/,/gi, ""),
+                    actual_qty = data['actual_qty'],
+                    total_amount = parseInt(price) * parseInt(qty);
+            var _id = Math.floor((Math.random() * 100000) + 1);
+            _.assign(data, {id:_id,item_amount: total_amount, item_price: price, item_qty: qty, actual_qty: actual_qty});
+            results.push(data);
+            $griddetail.bootstrapTable('append', results);
+            $griddetail.bootstrapTable('scrollTo', 'bottom');
+            $griddetail.bootstrapTable('refresh');
+        }
+        function _handleRemoveRows()
+        {
+            var rows = $griddetail.bootstrapTable('getSelections');
+            if(rows.length > 0) {
+                var data = [];
+                _.map(rows, function (row) {
+                    data.push(row['id']);
+                });
+                console.log(data);
+                $griddetail.bootstrapTable('remove', {field: 'id', values: data});
+            }
+            $griddetail.bootstrapTable('uncheckAll');
+            $griddetail.bootstrapTable('refresh');
+        }
+        function _pilihEntry(pilih)
+        {
+            var input = $('.from_warehouse');
+            var output = $('.to_warehouse');
+            $(".default_gudang").select2("val", "");
+
+            // set switch stok entry tipe
+            switch(pilih){
+                case ACTION_RECEIPT:
+                    input.hide();
+                    output.show();
+                    break;
+                case ACTION_ISSUE:
+                    input.show();
+                    output.hide();
+                    break;
+                default:
+                    input.show();
+                    output.show();
+                    break;
+            }
+        }
+        $(function () {
+            var constraints = {
+                posting_date: {presence: true},
+                posting_time: {presence: true}
+            };
+            $('form#form-entry').submit(function(e) {
+                var dtset = $griddetail.bootstrapTable("getData");
+                var dd = validate.single(dtset, {presence: true});
+                var errors = validate($(this), constraints);
+                // cek data gudang
+                // jika RECEIPT syarat gudang tujuan harus diisi dan gudang asal harus kosong
+
+                // jika ISSUE syarat gudang asal harus disi dan gudang tujuan harus kosong
+                if(!errors && !dd){
+                    var input = $("<input>")
+                            .attr("type", "hidden")
+                            .attr("name", "rows").val(JSON.stringify(dtset));
+                    $('form#form-entry').append($(input));
+                    console.log("ok");
+                } else {
+                    Messenger().post({
+                        message: "Data harap diisi terlebih dahulu",
+                        type: 'error',
+                        showCloseButton: true
+                    });
+                    e.preventDefault();
+                }
+            });
+            warehouse['tipe'] = "{{data.stok_entry_tipe}}";
+            $griddetail.bootstrapTable({
+                url: '{{source_url}}',
+                method: '{{method}}',
+                columns: {{cols | raw}}
+            });
+            $(".datepicker").datepicker({
+                defaultDate: "now",
+                dateFormat: "yy-mm-dd",
+                showOtherMonths: true
+            });
+            $('.timepicker').timepicker({ 'scrollDefaultNow': true });
+            $(".stok_entry_tipe").select2({
+                width: "100%",
+                minimumInputLength: 0,
+                placeholder: "Pilih Tipe Entry Stok",
+                id: function (bond) {
+                    return bond.entry_tipe_nama;
+                },
+                ajax: {
+                    url: '{{url_entry_tipe}}',
+                    dataType: 'json',
+                    quietMillis: 100,
+                    data: function (term, page) {
+                        return { search: term, offset: (page - 1) * 15, limit: 15 };
+                    },
+                    results: function (data, page) {
+                        var more = (page * 15) < data.total;
+                        return {results: data.rows, more: more};
+                    }
+                },
+                initSelection: function(element, callback) {
+                    var id = $(element).val();
+                    if (id !== "") {
+                        _pilihEntry(id);
+                        $.ajax("{{url_entry_tipe}}", {
+                            dataType: "json",
+                            data: { search: id, offset: 0, limit: 1 }
+                        }).done(function(data) { callback(data.rows[0]); });
+                    }
+                },
+                escapeMarkup: function (markup) {
+                    return markup;
+                },
+                formatSelection: function (repo) {
+                    return repo.entry_tipe_nama;
+                },
+                formatResult: function (repo) {
+                    return repo.entry_tipe_nama;
+                }
+            });
+            $(".stok_entry_tipe").on("change", function(e) {
+                var data = e.added;
+                _pilihEntry(data.entry_tipe_nama);
+                warehouse = [];
+                warehouse["tipe"] = data.entry_tipe_nama;
+            });
+            $(".default_gudang").select2({
+                allowClear: true,
+                width: "100%",
+                minimumInputLength: 0,
+                placeholder: "Cari lokasi gudang",
+                id: function (bond) {
+                    return bond.id;
+                },
+                ajax: {
+                    url: '{{url_gudang}}',
+                    dataType: 'json',
+                    quietMillis: 100,
+                    data: function (term, page) {
+                        return { search: term, offset: (page - 1) * 15, limit: 15 };
+                    },
+                    results: function (data, page) {
+                        var more = (page * 15) < data.total;
+                        return {results: data.rows, more: more};
+                    }
+                },
+                initSelection: function(element, callback) {
+                    var id = $(element).val();
+                    if (id !== "") {
+                        var parent = $(element).attr("name");
+                        $.ajax("{{url_gudang}}", {
+                            dataType: "json",
+                            method: 'POST',
+                            data: { search: id, offset: 0, limit: 1 }
+                        }).done(function(data) {
+                            warehouse[parent] = data.rows[0].id;
+                            callback(data.rows[0]);
+                        });
+                    }
+                },
+                escapeMarkup: function (markup) {
+                    return markup;
+                },
+                formatSelection: function (repo) {
+                    return repo.warehouse_nama;
+                },
+                formatResult: function (repo) {
+                    return repo.warehouse_nama;
+                }
+            });
+            $(".default_gudang").on("change", function(e) {
+                var data = e.added,
+                        parent = $(this).attr("name");
+                warehouse[parent] = data.id;
+            });
+        });
+    </script>
+{% endblock %}
+{% block content %}
+    <form id="form-entry" class="form-horizontal" action="{{url_submit}}" method="POST" role="form">
+        <h6 class="heading-hr"><i class="icon-paragraph-right2"></i>{{ title }}</h6>
+
+        <div class="form-actions text-right">
+            <input type="submit" value="Submit" class="btn btn-primary">
+        </div>
+
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="block-inner">
+                    <div class="block-inner">
+                        <h6 class="heading-hr">
+                            <i class="icon-user"></i> Entry Posting<small class="display-block">Form Entry Posting</small>
+                        </h6>
+                    </div>
+                    <div class="panel-body">
+                        <div class="form-group">
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <label>Kode Entry:</label>
+                                    <input type="text" class="form-control" name="entry_kode" value="{{ data.entry_kode }}" readonly/>
+                                    <input type="hidden" name="gen_id" value="{{ data.id }}" />
+                                </div>
+
+                                <div class="col-sm-6">
+                                    <label>Tanggal Posting:</label>
+                                    <input type="text" class="datepicker form-control" placeholder="Tanggal Posting Item"
+                                           name="posting_date" value="{{ data.posting_date }}" />
+
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <label>Jenis Entry:</label>
+                                    <input type="hidden" name="stok_entry_tipe" class="stok_entry_tipe" value="{{data.stok_entry_tipe}}" readonly/>
+                                </div>
+
+                                <div class="col-sm-6">
+                                    <label>Waktu Posting:</label>
+                                    <input type="text" placeholder="Waktu Posting Item" class="timepicker form-control"
+                                           name="posting_time" value="{{ data.posting_time }}"/>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <span class="from_warehouse">
+                                    <label>Lokasi Gudang Item Asal:</label>
+                                    <input type="hidden" name="from_warehouse" class="default_gudang" value="{{data.from_warehouse}}" readonly/>
+                                    </span>
+                                </div>
+
+                                <div class="col-sm-6">
+                                    <span class="to_warehouse">
+                                    <label>Lokasi Gudang Item Tujuan:</label>
+                                    <input type="hidden" name="to_warehouse" class="default_gudang" value="{{data.to_warehouse}}" readonly/>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+    <div class="block">
+        <h6 class="heading-hr">
+            <i class="icon-table"></i> {{ gridtitle }}
+        </h6>
+
+        <div class="well">
+            <a id="item-add" href="{{ modal_form }}?height=600&width=800"  title="Form Item" class="thickbox btn btn-primary"><i class="icon-box-add"></i>Tambah Data</a>
+            <button onclick="_handleRemoveRows();" class="btn btn-primary"><i class="icon-box-add"></i>Hapus Item</button>
+        </div>
+        {% if data.id %}
+            <div class="panel-body">
+                <div class="form-group">
+                    <div class="row">
+                        <div class="col-sm-4">
+                            <label>Total harga masuk:</label>
+                            <input type="text" name="total_incoming" class="total_incoming form-control cls-number" value="{{data.total_incoming}}" readonly/>
+                        </div>
+
+                        <div class="col-sm-4">
+                            <label>Total harga keluar:</label>
+                            <input type="text" name="total_outgoing" class="total_outgoing form-control cls-number" value="{{data.total_outgoing}}" readonly/>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="row">
+                        <div class="col-sm-4">
+                            <label>Selisih harga keluar masuk (out - in):</label>
+                            <input type="text" name="value_difference" class="value_difference form-control cls-number" value="{{data.value_difference}}" readonly/>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+        <div class="datatable">
+            <table id="table-detail"
+                   data-toolbar="#post"
+                   data-buttons-align="left"
+                   data-toolbar-align="right"
+                   data-click-to-select="true"
+                   data-single-select="true"
+                   data-height="480">
+            </table>
+        </div>
+    </div>
+{% endblock %}

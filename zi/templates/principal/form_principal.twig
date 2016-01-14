@@ -1,0 +1,41 @@
+{% extends 'uom/index.twig' %}
+{% block sub_css %}
+{% endblock %}
+{% block sub_js %}
+{% endblock %}
+{% block sub_content %}
+<form class="form-horizontal" action="{{ url_submit }}" method="POST" role="form">
+  <h6 class="heading-hr"><i class="icon-paragraph-right2"></i> {{ title }}</h6>
+
+  <div class="form-actions text-right">
+    <input type="submit" value="Submit" class="btn btn-primary">
+  </div>
+
+  <div class="block-inner">
+    <div class="block-inner">
+      <h6 class="heading-hr">
+        <i class="icon-anchor"></i> Informasi Umum <small class="display-block">Informasi Umum Tentang Brand Item</small>
+      </h6>
+    </div>
+
+    <div class="form-group">
+      <label class="col-sm-2 control-label">Nama Brand:</label>
+      <div class="col-sm-10">
+        <input type="text" class="form-control" name="nama" value="{{ data.nama }}" />
+        <input type="hidden" name="gen_id" value="{{ data.nama }}" />
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="col-sm-2 control-label">Status :</label>
+      <div class="col-sm-10">
+        <div class="checkbox">
+          <label>
+            <input type="checkbox" name="aktif" class="styled" {% if data.aktif > 0 or data.nama is empty%} checked="checked"{% endif %}/>
+            Aktif
+          </label>
+        </div>
+      </div>
+    </div>
+  </div>
+</form>
+{% endblock %}

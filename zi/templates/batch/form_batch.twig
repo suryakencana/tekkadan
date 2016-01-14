@@ -1,0 +1,133 @@
+{% extends 'batch/index.twig' %}
+{% block sub_css %}
+{% endblock %}
+{% block sub_js %}
+    <script type="text/javascript" src="{{baseurl}}assets/js/jquery-ui.min.js"></script>
+    <script type="text/javascript" src="{{baseurl}}assets/js/plugins/forms/select2.min.js"></script>
+    <script type="text/javascript">
+
+        $(function(){
+            $(".datepicker").datepicker({
+                defaultDate: "now",
+                dateFormat: "yy-mm-dd",
+                showOtherMonths: true
+            });
+
+            $(".item_kode").select2({
+                width: "250",
+                minimumInputLength: 0,
+                placeholder: "Cari Item",
+                id: function (bond) {
+                    return bond.item_kode;
+                },
+                ajax: {
+                    url: '{{url_item}}',
+                    dataType: 'json',
+                    quietMillis: 100,
+                    data: function (term, page) {
+                        return { search: term, offset: (page - 1) * 15, limit: 15 };
+                    },
+                    results: function (data, page) {
+                        var more = (page * 15) < data.total;
+                        return {results: data.rows, more: more};
+                    }
+                },
+                initSelection: function(element, callback) {
+                    var id = $(element).val();
+                    if (id !== "") {
+                        $.ajax("{{url_item}}", {
+                            dataType: "json",
+                            method: 'POST',
+                            data: { search: id, offset: 0, limit: 1 }
+                        }).done(function(data) { callback(data.rows[0]); });
+                    }
+                },
+                escapeMarkup: function (markup) {
+                    return markup;
+                },
+                formatSelection: function (repo) {
+                    return repo.item_kode;
+                },
+                formatResult: function (repo) {
+                    var markup = '<div class="row">' +
+                            '<div class="col-sm-12">' + repo.item_nama + '</div>' +
+                            '<ul style="font-size: 8px;">' +
+                            '<li class="col-sm-12">'+ repo.item_kode +'</li>' +
+                            '<li class="col-sm-12">'+ repo.item_uom +'</li>' +
+                            '<li class="col-sm-12">'+ repo.item_principal +'</li>' +
+                            '<li class="col-sm-12">'+ repo.item_grup+'</li>' +
+                            '</ul>';
+
+                    markup += '</div>';
+
+                    return markup;
+                }
+            });
+            $(".item_kode").on("change", function(e) {
+                var data = e.added;
+                $("input[name=item]").val(data.id);
+                $("input[name=batch_kode]").val(data.item_kode+"-");
+                $("input[name=batch_kode]").focus();
+            });
+        });
+    </script>
+{% endblock %}
+{% block sub_content %}
+    <form class="form-horizontal" action="{{ url_submit }}" method="POST" role="form">
+        <h6 class="heading-hr"><i class="icon-paragraph-right2"></i> {{ title }}</h6>
+
+        <div class="form-actions text-right">
+            <input type="submit" value="Submit" class="btn btn-primary">
+        </div>
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="block-inner">
+                    <div class="block-inner">
+                        <h6 class="heading-hr">
+                            <i class="icon-coin"></i> Informasi Umum <small class="display-block">Informasi Umum Tentang Harga Item</small>
+                        </h6>
+                    </div>
+                    <div class="panel-body">
+
+                        <div class="form-group">
+                            <div class="row">
+                                <div class="col-sm-4">
+                                    <label>Batch no:</label>
+                                    <input type="text" name="batch_kode" class="batch_kode form-control" value="{{data.id}}" {% if is_read_only %}readonly{% endif %}/>
+                                    <input type="hidden" name="gen_id" value="{{ data.id }}" />
+                                    <span class="help-block">Batch no. e.g ITEM-ABOTIL-CAIR-0001, ITEM-INZIANA-STRIP-20181105</span>
+                                </div>
+                                <div class="col-sm-4">
+                                    <label>Tanggal Berakhir:</label>
+                                    <input type="text" class="datepicker form-control" placeholder="Tanggal Posting Item"
+                                           name="expiry_date" value="{{ data.expiry_date }}" />
+                                    <span class="help-block">Tanggal akhir berlaku Batch no. item</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="row">
+                                <div class="col-sm-4">
+                                    <label>Kode Item:</label>
+                                    <input type="hidden" name="item_kode" class="item_kode" value="{{data.item_kode}}" {% if is_read_only %}readonly{% endif %}/>
+                                    <input type="hidden" name="item" class="item" value="{{data.item}}"/>
+                                    <span class="help-block">Kode Item e.g ITEM-INZIANA-STRIP</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <label>Keterangan</label>
+                                    <textarea type="text" name="keterangan" class="form-control" >{{ data.keterangan }}</textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+{% endblock %}

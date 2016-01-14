@@ -1,0 +1,65 @@
+{#<!-- Sidebar -->#}
+<div class="sidebar collapse">
+    <div class="sidebar-content">
+
+        {#<!-- User dropdown -->#}
+        <div class="user-menu dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                <img src="{{baseurl}}assets/images/logo-square.png" alt="">
+                <div class="user-info">
+                    <span>Health Care </span><span>Management System</span>
+                </div>
+            </a>
+        </div>
+        {#<!-- /user dropdown -->#}
+
+
+        {#<!-- Main navigation -->#}
+        <ul class="navigation navigation-icons-left">
+            <li><a href="{{ urlFor('home') }}"><span>Dashboard</span> <i class="icon-screen2"></i></a></li>
+            <li>
+                <a href="#" class="expand"><span>Master</span> <i class="icon-anchor"></i></a>
+                <ul>
+                    <li><a href="{{ urlFor('item.index') }}">Item</a></li>
+                    <li><a href="{{ urlFor('unitOM.index') }}">Unit of Measure(UOM)/Satuan</a></li>
+                    <li><a href="{{ urlFor('principal.index') }}">Principal(Merk)</a></li>
+                    <li><a href="{{ urlFor('pricelist.index') }}">Daftar Harga</a></li>
+                    <li><a href="{{ urlFor('itemprice.index') }}">Harga Item</a></li>
+                </ul>
+            </li>
+            <li>
+                <a href="#" class="expand"><span>Mutasi</span> <i class="icon-box-add"></i></a>
+                <ul>
+                    <li><a href="{{ urlFor('stok.entry', {'tipe': 'MASUK'}) }}">Mutasi Masuk</a></li>
+                    <li><a href="{{ urlFor('stok.entry', {'tipe': 'KELUAR'}) }}">Mutasi Keluar</a></li>
+                    <li><a href="#" class="expand">Laporan</a>
+                        <ul>
+                            <li><a href="{{ urlFor('stok.viewbalance') }}">Saldo Stok</a></li>
+                            <li><a href="{{ urlFor('stok.list_stock_entry') }}">Mutasi</a></li>
+                            <li><a href="{{ urlFor('stok.list_stock_ledger') }}">Jurnal Stok</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </li>
+            <li>
+                <a href="#" class="expand"><span>Penjualan</span> <i class="icon-cart"></i></a>
+                <ul>
+                    <li><a href="{{ urlFor('selling.pos') }}">Kasir (POS)</a></li>
+                    {#<li><a href="navs.html">Sales Order</a></li>#}
+                    <li><a href="#">Customer & Pasien</a></li>
+                    <li><a href="#" class="expand">Laporan</a>
+                        <ul>
+                            <li><a href="{{ urlFor('selling.list_penjualan') }}">Penjualan</a></li>
+                            <li><a href="#">Laba/Rugi</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </li>
+
+
+        </ul>
+        {#<!-- /main navigation -->#}
+
+    </div>
+</div>
+{#<!-- /sidebar -->#}

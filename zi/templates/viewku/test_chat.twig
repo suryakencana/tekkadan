@@ -1,0 +1,20 @@
+{% extends 'index.twig' %}
+{% block basecss %}
+    <link rel="stylesheet" href="{{baseurl}}assets/plugins/bootstrap-table/dist/bootstrap-table.css"/>
+{% endblock %}
+{% block basejs %}
+    <script type="text/javascript">
+        var urlAPI = "{{ baseurl }}api/comments";
+    </script>
+    <script src="{{ baseurl }}assets/js/12057011_R.js"></script>
+    <script type="text/javascript" src="{{baseurl}}assets/plugins/bootstrap-table/dist/bootstrap-table.js"></script>
+    {#<script src="{{ baseurl }}assets/js/12057032_D.js"></script>#}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/0.3.2/marked.min.js"></script>
+    <script src="{{ baseurl }}assets/js/react/components/gridtable.js"></script>
+    <script src="{{ baseurl }}assets/js/react/example.js"></script>
+{% endblock %}
+{% block content %}
+
+<div id="content"></div>
+
+{% endblock %}

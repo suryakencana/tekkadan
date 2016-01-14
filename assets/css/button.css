@@ -1,0 +1,134 @@
+button, .btn, .green, .silver, .orange, .purple, .status-bar .row button, #callout label, #providers-text label {
+    -moz-user-select: none;
+    border: 1px solid;
+    border-radius: 3px;
+    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.5) inset, 0 1px 0 rgba(0, 0, 0, 0.1);
+    color: #FFFFFF;
+    cursor: pointer;
+    display: inline-block;
+    font-size: 13px;
+    font-weight: 700;
+    height: 36px;
+    line-height: 36px;
+    padding: 0 18px 0 16px;
+    text-align: center;
+    text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.3);
+    transition: all 0.2s ease-in-out 0s;
+    white-space: nowrap;
+}
+button:hover, .btn:hover, .green:hover, .silver:hover, .orange:hover, .purple:hover, .status-bar .row button:hover, #callout label:hover, #providers-text label:hover {
+    text-decoration: none;
+}
+button:active, button.active, .btn:active, .green:active, .silver:active, .orange:active, .purple:active, .status-bar .row button:active, #callout label:active, #providers-text label:active, .btn.active, .active.green, .active.silver, .active.orange, .active.purple, .status-bar .row button.active, #callout label.active, #providers-text label.active {
+    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.25) inset, 0 1px 0 rgba(0, 0, 0, 0.1), 0 1px 6px rgba(0, 0, 0, 0.1) inset;
+    text-decoration: none;
+}
+button:focus, .btn:focus, .green:focus, .silver:focus, .orange:focus, .purple:focus, .status-bar .row button:focus, #callout label:focus, #providers-text label:focus {
+    outline: 0 none;
+}
+button[disabled], .btn[disabled], .green[disabled], .silver[disabled], .orange[disabled], .purple[disabled], .status-bar .row button[disabled], #callout label[disabled], #providers-text label[disabled] {
+    box-shadow: none;
+    cursor: not-allowed;
+    text-shadow: none;
+}
+button[disabled] img, .btn[disabled] img, .green[disabled] img, .silver[disabled] img, .orange[disabled] img, .purple[disabled] img, .status-bar .row button[disabled] img, #callout label[disabled] img, #providers-text label[disabled] img {
+    opacity: 0.75;
+}
+button img, button span, .btn img, .green img, .silver img, .status-bar .row button + button img, .orange img, .purple img, .status-bar .row button img, #callout label img, #providers-text label img, .btn span, .green span, .silver span, .status-bar .row button + button span, .orange span, .purple span, .status-bar .row button span, #callout label span, #providers-text label span {
+    display: inline-block;
+}
+button img, .btn img, .green img, .silver img, .status-bar .row button + button img, .orange img, .purple img, .status-bar .row button img, #callout label img, #providers-text label img {
+    margin: -4px 4px 0 0;
+}
+.green {
+    background-color: #85BD4C;
+    background-image: linear-gradient(rgba(76, 168, 68, 0), #4CA844);
+    border-color: #418F3A;
+}
+.green:hover {
+    background-color: #97C766;
+    background-image: linear-gradient(rgba(76, 168, 68, 0), #4CA844);
+    border-color: #418F3A;
+}
+.green:active, .green.active {
+    background-color: #479D40;
+    border-color: #418F3A;
+}
+.green[disabled] {
+    background: none repeat scroll 0 0 rgba(151, 199, 102, 0.75);
+    border-color: #6A8567;
+    color: #E3F0D6;
+}
+.silver, .status-bar .row button + button {
+    background-color: #F1F1F1;
+    background-image: linear-gradient(rgba(228, 228, 228, 0), #E4E4E4);
+    border-color: #C5C5C5;
+    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.5) inset, 0 1px 0 rgba(0, 0, 0, 0.01);
+    color: #888888;
+    text-shadow: 0 -1px 0 rgba(255, 255, 255, 0.3);
+}
+.silver:hover, .status-bar .row button + button:hover {
+    background-color: #F8F8F8;
+    background-image: linear-gradient(rgba(228, 228, 228, 0), #E4E4E4);
+    border-color: #C5C5C5;
+    color: #888888;
+}
+.silver:active, .status-bar .row button + button:active, .silver.active, .status-bar .row button + button.active {
+    background-color: #CDCDCD;
+    background-image: linear-gradient(#E4E4E4, #E4E4E4);
+    border-color: #C5C5C5;
+    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.5) inset, 0 1px 0 rgba(0, 0, 0, 0.01), 0 1px 6px rgba(0, 0, 0, 0.1) inset;
+}
+.silver[disabled], .status-bar .row button + button[disabled] {
+    background: none repeat scroll 0 0 rgba(248, 248, 248, 0.75);
+    border-color: #CDCDCD;
+    color: #BBBBBB;
+}
+.orange {
+    background-color: #FD8A3B;
+    background-image: linear-gradient(rgba(253, 96, 9, 0), #FD6009);
+    border-color: #DB4F02;
+}
+.orange:hover {
+    background-color: #FD9C4A;
+    background-image: linear-gradient(rgba(253, 96, 9, 0), #FD6009);
+    border-color: #DB4F02;
+}
+.orange:active, .orange.active {
+    background-color: #FD803B;
+    background-image: linear-gradient(rgba(253, 96, 9, 0.4), #FD6009);
+    border-color: #DB4F02;
+}
+.orange[disabled] {
+    background: none repeat scroll 0 0 rgba(253, 128, 59, 0.4);
+    border-color: rgba(219, 79, 2, 0.6);
+    color: #FFFDFB;
+}
+.purple, .status-bar .row button, #callout label, #providers-text label {
+    background-color: #9A58BA;
+    background-image: linear-gradient(rgba(107, 64, 155, 0), #6B409B);
+    border-color: #5B3777;
+    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.4) inset, 0 1px 0 rgba(0, 0, 0, 0.1);
+}
+.purple:hover, .status-bar .row button:hover, #callout label:hover, #providers-text label:hover {
+    background-color: #AC67C6;
+    background-image: linear-gradient(rgba(107, 64, 155, 0), #6B409B);
+    border-color: #5B3777;
+}
+.purple:active, .status-bar .row button:active, #callout label:active, #providers-text label:active, .purple.active, .status-bar .row button.active, #callout label.active, #providers-text label.active {
+    background-color: #AC67C6;
+    background-image: linear-gradient(rgba(107, 64, 155, 0.4), #6B409B);
+    border-color: #5B3777;
+}
+.purple[disabled], .status-bar .row button[disabled], #callout label[disabled], #providers-text label[disabled] {
+    background: none repeat scroll 0 0 rgba(154, 88, 186, 0.4);
+    border-color: rgba(91, 55, 119, 0.6);
+    color: #F9F4FB;
+}
+.btn-label, #callout label, #providers-text label {
+    font-size: 12px;
+    height: 22px;
+    line-height: 22px;
+    padding: 0 6px;
+    pointer-events: none;
+}

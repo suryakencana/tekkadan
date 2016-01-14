@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Tekkadan - Health care management system</title>
+
+	<link href="{{baseurl}}assets/css/bootstrap.min.css" rel="stylesheet" type="text/css">
+	<link href="{{baseurl}}assets/css/londinium-theme.css" rel="stylesheet" type="text/css">
+	<link href="{{baseurl}}assets/css/styles.css" rel="stylesheet" type="text/css">
+	<link href="{{baseurl}}assets/css/icons.css" rel="stylesheet" type="text/css">
+	<link href="{{baseurl}}assets/css/font.css" rel="stylesheet" type="text/css">
+
+	<link href="{{baseurl}}assets/plugins/messenger/messenger.css" rel="stylesheet" type="text/css">
+	<link href="{{baseurl}}assets/plugins/messenger/messenger-theme-flat.css" rel="stylesheet" type="text/css">
+	<link href="{{baseurl}}assets/plugins/messenger/messenger-theme-block.css" rel="stylesheet" type="text/css">
+
+	{% block basecss %}{% endblock %}
+	{% block css %}{% endblock %}
+</head>
+
+<body class="navbar-fixed sidebar-wide">
+
+	{% include 'navbar.twig'%}
+
+	{#<!-- Page container -->#}
+	<div class="page-container">
+
+        {% include 'sidebar.twig' %}
+
+		{#<!-- Page content -->#}
+		<div class="page-content">
+
+			<!-- Page header -->
+			<div class="page-header">
+				<div class="page-title">
+					<h3>Rumah Sakit Mata Masyarakat <small> Health Care Management System&trade;</small></h3>
+				</div>
+
+				<div class="range" style="margin:10px;">
+					<div class="date-range">
+						<i>6</i> <b><i>May</i> <i>2014</i></b>
+					</div>
+				</div>
+			</div>
+			<!-- /page header -->
+
+			<!-- Breadcrumbs line -->
+			<div class="breadcrumb-line">
+				<ul class="breadcrumb">
+					<li><a href="">Home</a></li>
+					<li>{{ folder | raw }}</li>
+                    {% for uri in bread %}
+					<li {% if loop.last %}class="active"{% endif %}>{{ uri | raw | upper }}</li>
+                    {% endfor %}
+				</ul>
+			</div>
+			<!-- /breadcrumbs line -->
+
+			<!-- Callout Message Box-->
+			{% block MsgBox %}{% endblock %}
+			<!-- /callout Message Box -->
+			<div class="panel-body">
+				{% block content %}{% endblock %}
+			</div>
+			<!-- Footer -->
+			{% include 'footer.twig' %}
+			<!-- /footer -->
+
+		</div>
+		{#<!-- /page content -->#}
+
+	</div>
+	{#<!-- /page container -->#}
+	<script type="text/javascript" src="{{baseurl}}assets/js/jquery-1.10.1.min.js"></script>
+
+    <script type="text/javascript" src="{{baseurl}}assets/js/plugins/interface/moment.js"></script>
+    <script type="text/javascript" src="{{baseurl}}assets/js/plugins/interface/collapsible.min.js"></script>
+    <script type="text/javascript" src="{{baseurl}}assets/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="{{baseurl}}assets/js/bootbox.min.js"></script>
+    <script type="text/javascript" src="{{baseurl}}assets/plugins/lodash.min.js"></script>
+    <script type="text/javascript" src="{{baseurl}}assets/plugins/messenger/messenger.min.js"></script>
+    <script type="text/javascript" src="{{baseurl}}assets/plugins/messenger/messenger-theme-flat.js"></script>
+
+	{% block basejs %}{% endblock %}
+	{% block js %}{% endblock %}
+</body>
+</html>
