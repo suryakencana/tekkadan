@@ -173,6 +173,7 @@ class Zi extends \Slim\Slim
     if ($len = strpos(strrev($template), '.')) {
       $template = substr($template, 0, -($len + 1));
     }
+    $auth=null;
     $this->auth = \Strong\Strong::getInstance();
     if ($this->auth->loggedIn()) {
 			$auth = $this->auth->getUser();
