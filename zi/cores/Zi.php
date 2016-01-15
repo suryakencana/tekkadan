@@ -83,7 +83,7 @@ class Zi extends \Slim\Slim
     // Authentication //, $smode['username'], $smode['password']),
     $cfg = array(
       'provider' => 'Activerecord',
-      'pdo' => new \PDO($dsn, 'surya', 'root'),
+      'pdo' => new \PDO($dsn, $smode['username'], $smode['password']),
       'auth.type' => 'form',
       'login.url' =>  $this->container['settings']['auth.url'],
       'security.urls' => require ZICONFIG.'/authFilter.php'
