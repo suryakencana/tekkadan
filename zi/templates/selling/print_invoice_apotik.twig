@@ -12,11 +12,12 @@
 
 <div id="body">
 
-    <div id="section_header" style="font-size: 7pt">
+    <div id="section_header" style="font-size: 7pt; text-align: center;">
         {{ title | raw}}
     </div>
 
-    <div id="content">
+    <div id="content" style="width: 100%;padding: 0.2em 1% 0.2em 1%;
+  min-height: 15em;">
 
         <div class="page" style="font-size: 7pt">
 
@@ -46,7 +47,7 @@
 
             </table>
 
-            <table class="change_order_items">
+            <table class="change_order_items" style="width: 100%;">
                 <tbody>
                 <tr>
                     <th>Kode</th>
@@ -58,12 +59,12 @@
 
                 {% for row in rows %}
                     <tr class="even_row">
-                    <td style="text-align: center">{{ row.id}}</td>
+                    <td style="text-align: center;">{{ row.id}}</td>
                         <td>{{ row.item_kode }} - {{ row.item_nama }}</td>
-                        <td style="text-align: center">{{row.actual_qty | number_format(0, '.', ',')}}</td>
+                        <td style="text-align: center;">{{row.actual_qty | number_format(0, '.', ',')}}</td>
                         <td style="text-align: right; border-right-style: none;">Rp. {{ row.item_price | number_format(2, '.', ',')}}</td>
                         <td class="change_order_unit_col" style="border-left-style: none;">{{ row.item_uom}}</td>
-                        <td class="change_order_total_col">Rp. {{ row.amount | number_format(2, '.', ',')}}</td>
+                        <td class="change_order_total_col" style="text-align: right;">Rp. {{ row.amount | number_format(2, '.', ',')}}</td>
                     </tr>
                 {% endfor %}
 
@@ -71,17 +72,17 @@
                 <tr>
                     <td colspan="3" style="text-align: right;"></td>
                     <td colspan="2" style="text-align: right;"><strong>Total:</strong></td>
-                    <td class="change_order_total_col"><strong>Rp. {{amount | number_format(2, '.', ',')}}</strong></td>
+                    <td class="change_order_total_col" style="text-align: right;"><strong>Rp. {{amount | number_format(2, '.', ',')}}</strong></td>
                 </tr>
                 <tr>
                     <td colspan="3" style="text-align: right;"></td>
                     <td colspan="2" style="text-align: right;"><strong>Bayar:</strong></td>
-                    <td class="change_order_total_col"><strong>Rp. {{payment | number_format(2, '.', ',')}}</strong></td>
+                    <td class="change_order_total_col" style="text-align: right;"><strong>Rp. {{payment | number_format(2, '.', ',')}}</strong></td>
                 </tr>
                 <tr>
                     <td colspan="3" style="text-align: right;"></td>
                     <td colspan="2" style="text-align: right;"><strong>Kembali:</strong></td>
-                    <td class="change_order_total_col"><strong>Rp. {{ (payment - amount) | number_format(2, '.', ',')}}</strong></td>
+                    <td class="change_order_total_col" style="text-align: right;"><strong>Rp. {{ (payment - amount) | number_format(2, '.', ',')}}</strong></td>
                 </tr>
             </table>
         </div>

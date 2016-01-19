@@ -18,6 +18,7 @@
  *  Selling.php
  */
 
+
 class Selling_Controller extends \Zi\Lock_c
 {
 
@@ -288,13 +289,15 @@ class Selling_Controller extends \Zi\Lock_c
     $dompdf = APP::print_render('selling/print_invoice_apotik', $data, $paper);
 
     $pdf = $dompdf->get_canvas();
-    $font = Font_Metrics::get_font("helvetica");
+    $fontMetrics = $dompdf->getFontMetrics();
+    // $font = $fontMetrics->getSystemFonts();
+    $font = $fontMetrics->getFont('helvetica');
     // If verdana isn't available, we'll use sans-serif.
-    if (!isset($font)) { Font_Metrics::get_font("sans-serif"); }
+    // if (!isset($font)) { $fontMetrics->getFont("sans-serif"); }
     $size = 6;
     $color = array(0,0,0);
 
-    $text_height = Font_Metrics::get_font_height($font, $size);
+    $text_height = $fontMetrics->getFontHeight($font, $size);
 
     $foot = $pdf->open_object();
 
@@ -312,7 +315,7 @@ class Selling_Controller extends \Zi\Lock_c
     $text = "Page {PAGE_NUM} of {PAGE_COUNT}";
 
     // Center the text
-    $width = Font_Metrics::get_text_width("Page 1 of 2", $font, $size);
+    $width = $fontMetrics->getTextWidth("Page 1 of 2", $font, $size);
     $pdf->page_text($w / 2 - $width / 2, $y, $text, $font, $size, $color);
 
     $pdf->close_object();

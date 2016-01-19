@@ -38,11 +38,10 @@ define('BASEURL', $config['base_url']);
 define('ASSET', $config['base_url'] . 'assets/');
 define('EXT', '.twig');
 
-// inhibit DOMPDF's auto-loader
-define('DOMPDF_ENABLE_AUTOLOAD', false);
+
 
 //include the DOMPDF config file (required)
-// require 'vendor/dompdf/dompdf/dompdf_config.inc.php';
+// require 'vendor/dompdf/dompdf/autoload.inc.php';
 
 /*
 |--------------------------------------------------------------------------
@@ -58,3 +57,5 @@ define('DOMPDF_ENABLE_AUTOLOAD', false);
 
 require 'vendor/autoload.php';
 
+// // inhibit DOMPDF's auto-loader
+// define('DOMPDF_ENABLE_AUTOLOAD', false);

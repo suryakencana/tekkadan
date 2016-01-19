@@ -185,7 +185,14 @@ class Zi extends \Slim\Slim
 
   public function print_render($template, $data = array(), $paper = array("A4", "portrait"))
   {
-    $dompdf = new \DOMPDF();
+    $dompdf = new \Dompdf\Dompdf();
+    $options = new \Dompdf\Options();
+    // set options indvidiually
+    $options->set('isPhpEnabled', true);
+    
+    $dompdf->setOptions($options);
+
+    
     $dompdf->set_paper($paper[0], $paper[1]);
 
     $this->html_render($template);
