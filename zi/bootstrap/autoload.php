@@ -42,7 +42,7 @@ define('EXT', '.twig');
 define('DOMPDF_ENABLE_AUTOLOAD', false);
 
 //include the DOMPDF config file (required)
-require 'vendor/dompdf/dompdf/dompdf_config.inc.php';
+// require 'vendor/dompdf/dompdf/dompdf_config.inc.php';
 
 /*
 |--------------------------------------------------------------------------
