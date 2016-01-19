@@ -57,8 +57,9 @@ class Stok_Controller extends \Zi\Lock_c
   {
     $req = APP::request();
     $params = $req->get();
-    $query = "item_kode ILIKE '%" . $params['search'] ."%'";
-    $results = ZiUtil::search_result_DB($query, $params, StokBatchBalance);
+    $search =ZiUtil::is_set('search', $params);
+    $query = "item_kode ILIKE '%" . $search ."%'";
+    $results = ZiUtil::search_result_DB($query, $params, 'StokBatchBalance');
 
     return ZiUtil::dataset_json($results['query'], $results['total']);
   }
@@ -71,8 +72,9 @@ class Stok_Controller extends \Zi\Lock_c
   {
     $req = APP::request();
     $params = $req->get();
-    $query = "item_kode ILIKE '%" . $params['search'] ."%'";
-    $results = ZiUtil::search_result_DB($query, $params, StokBalance);
+    $search =ZiUtil::is_set('search', $params);
+    $query = "item_kode ILIKE '%" . $search ."%'";
+    $results = ZiUtil::search_result_DB($query, $params, 'StokBalance');
 
     return ZiUtil::dataset_json($results['query'], $results['total']);
   }
@@ -86,7 +88,7 @@ class Stok_Controller extends \Zi\Lock_c
     $req = APP::request();
     $params = $req->get();
     $query = "item_kode = '".$params['item_kode']."' and warehouse ='".$params['warehouse']."'";
-    $results = ZiUtil::search_result_DB($query, $params, StokBalance);
+    $results = ZiUtil::search_result_DB($query, $params, 'StokBalance');
 
     return ZiUtil::dataset_json($results['query'], $results['total']);
   }
@@ -101,7 +103,7 @@ class Stok_Controller extends \Zi\Lock_c
     $params = $req->get();
     $orBatchSerial = isset($params['batch_no']) && !empty($params['batch_no']) ? " AND batch_no ='".$params['batch_no']."'" : "";
     $query = "item_kode = '".$params['item_kode']."' and warehouse ='".$params['warehouse']."'".$orBatchSerial;
-    $results = ZiUtil::search_result_DB($query, $params, StokBatchBalance);
+    $results = ZiUtil::search_result_DB($query, $params, 'StokBatchBalance');
 
     return ZiUtil::dataset_json($results['query'], $results['total']);
   }
@@ -110,8 +112,9 @@ class Stok_Controller extends \Zi\Lock_c
   {
     $req = APP::request();
     $params = $req->get();
-    $query = "entry_tipe_nama ILIKE '%".$params['search']."%'";
-    $results = ZiUtil::search_result_DB($query, $params, StokEntryTipe);
+    $search =ZiUtil::is_set('search', $params);
+    $query = "entry_tipe_nama ILIKE '%".$search."%'";
+    $results = ZiUtil::search_result_DB($query, $params, 'StokEntryTipe');
 
     return ZiUtil::dataset_json($results['query'], $results['total']);
   }
@@ -370,8 +373,9 @@ class Stok_Controller extends \Zi\Lock_c
   {
     $req = APP::request();
     $params = $req->get();
-    $query = "stok_entry_kode ILIKE '%".$params['search']."%'";
-    $results = ZiUtil::search_result_DB($query, $params, StokEntry);
+    $search = ZiUtil::is_set('search', $params);
+    $query = "stok_entry_kode ILIKE '%".$search."%'";
+    $results = ZiUtil::search_result_DB($query, $params, 'StokEntry');
 
     return ZiUtil::dataset_json($results['query'], $results['total']);
   }
@@ -406,8 +410,9 @@ class Stok_Controller extends \Zi\Lock_c
   {
     $req = APP::request();
     $params = $req->get();
-    $query = "item_kode ILIKE '%".$params['search']."%'";
-    $results = ZiUtil::search_result_DB($query, $params, VStokLedger);
+    $search = ZiUtil::is_set('search', $params);
+    $query = "item_kode ILIKE '%".$search."%'";
+    $results = ZiUtil::search_result_DB($query, $params, 'VStokLedger');
 
     return ZiUtil::dataset_json($results['query'], $results['total']);
   }

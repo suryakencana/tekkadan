@@ -50,8 +50,9 @@ class Principal_Controller extends Zi\Lock_c
   {
     $req = APP::request();
     $get = $req->get();
-    $query = "nama ILIKE '%".$get['search']."%'";
-    $results = ZiUtil::search_result_DB($query, $get, Principal);
+    $search = ZiUtil::is_set('search', $get);
+    $query = "nama ILIKE '%".$search."%'";
+    $results = ZiUtil::search_result_DB($query, $get, 'Principal');
     return ZiUtil::dataset_json($results['query'], $results['total']);
   }
 

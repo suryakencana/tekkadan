@@ -1,5 +1,7 @@
 composer.phar
 vendor/
+zi/config/database.php
+zi/templates/cache
 .DS_Store
 composer.json
 composer.lock

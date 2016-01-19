@@ -23,11 +23,11 @@
  * Time: 11:36 PM
  */
 
-class Item_Controller extends \Zi\Lock_c
+class Item_Controller
 {
   public function __construct()
   {
-    parent::__construct();
+
   }
 
   public function index()
@@ -60,12 +60,14 @@ class Item_Controller extends \Zi\Lock_c
 
     if ($req->isPost()) {
       $params = $req->post();
-      $query = "item_kode = '" . $params['search'] . "'";
+      $search = ZiUtil::is_set('search', $params);
+      $query = "item_kode = '" . $search . "'";
     } else {
       $params = $req->get();
-      $query = "item_nama ILIKE '%" . $params['search'] . "%'";
+      $search = ZiUtil::is_set('search', $params);
+      $query = "item_nama ILIKE '%" . $search . "%'";
     }
-    $results = ZiUtil::search_result_DB($query, $params, Item);
+    $results = ZiUtil::search_result_DB($query, $params, 'Item');
     return ZiUtil::dataset_json($results['query'], $results['total']);
   }
 
@@ -73,8 +75,9 @@ class Item_Controller extends \Zi\Lock_c
   {
     $req = APP::request();
     $get = $req->get();
-    $query = "item_grup_nama ILIKE '%" . $get['search'] . "%'";
-    $results = ZiUtil::search_result_DB($query, $get, ItemGrup);
+    $search = ZiUtil::is_set('search', $get);
+    $query = "item_grup_nama ILIKE '%" . $search . "%'";
+    $results = ZiUtil::search_result_DB($query, $get, 'ItemGrup');
     return ZiUtil::dataset_json($results['query'], $results['total']);
   }
 

@@ -57,9 +57,10 @@ class Batch_Controller extends \Zi\Lock_c
       $query = "$anchor = '$value'";
     } else {
       $params = $req->get();
-      $query = "item ILIKE '%" . $params['search'] . "%'";
+      $search = ZiUtil::is_set('search', $params);
+      $query = "item ILIKE '%" . $$search . "%'";
     }
-    $results = ZiUtil::search_result_DB($query, $params, Batch);
+    $results = ZiUtil::search_result_DB($query, $params, 'Batch');
     return ZiUtil::dataset_json($results['query'], $results['total']);
   }
 
@@ -67,8 +68,10 @@ class Batch_Controller extends \Zi\Lock_c
   {
     $req = APP::request();
     $params = $req->get();
-    $query = "item ILIKE '%" . $params['search'] . "%' AND item_kode ='".$params['item_kode']."'";
-    $results = ZiUtil::search_result_DB($query, $params, Batch);
+    $search = ZiUtil::is_set('search', $params);
+    $item_kode = ZiUtil::is_set('item_kode', $params);
+    $query = "item ILIKE '%" . $search . "%' AND item_kode ='".$item_kode."'";
+    $results = ZiUtil::search_result_DB($query, $params, 'Batch');
     return ZiUtil::dataset_json($results['query'], $results['total']);
   }
 
@@ -156,7 +159,7 @@ class Batch_Controller extends \Zi\Lock_c
 
     $grid['url_price_list'] = APP::urlFor('pricelist.dataset');
     $grid['url_item'] = APP::urlFor('item.dataset');
-    App::render('batch/form_batch',$grid);
+    App::render('batch/form_batch', $grid);
   }
 
   public function d011($id = null){
@@ -169,4 +172,4 @@ class Batch_Controller extends \Zi\Lock_c
     App::flash('error', 'Terjadi kesalahan pada inputan anda.');
     App::redirect('batch.index');
   }
-} 
+}

@@ -61,6 +61,11 @@ class ZiUtil
 		return $error;
 	}
 
+	public static function is_set($key, $obj)
+	{
+			return isset($obj[$key]) ? $obj[$key] : '';
+	}
+
 	public static function check_bool_int($var)
 	{
 		return isset($var) ? 1 : 0;
@@ -92,34 +97,30 @@ class ZiUtil
 		$resp->headers->set('Content-Type', 'application/json');
 		$resp->headers->set('Cache-Control', 'no-cache');
 		$resp->setStatus(200);
-		//    echo json_decode($content);
-		/*$dataset = array();
-		foreach ($content as $row) {
-		$dataset[] = ;
-	}*/
-	$resp->setBody($content);
-}
 
-public static function GetTransID()
-{
-	$r = rand();
-	$u = uniqid(getmypid() . $r . (double)microtime()*1000000,true);
-	$m = md5(session_id().$u);
-	return($m);
-}
+		$resp->setBody($content);
+	}
 
-public static function GetNowID()
-{
-	$r = rand();
-	$date = getdate();
-	$u =  $date["year"]. $date["mon"]. $date["mday"].$r;
-	return($u);
-}
+	public static function GetTransID()
+	{
+		$r = rand();
+		$u = uniqid(getmypid() . $r . (double)microtime()*1000000,true);
+		$m = md5(session_id().$u);
+		return($m);
+	}
 
-public static function GetDateNow()
-{
-	$date = getdate();
-	$u =  $date["mday"].$date["mon"].$date["year"];
-	return($u);
-}
+	public static function GetNowID()
+	{
+		$r = rand();
+		$date = getdate();
+		$u =  $date["year"]. $date["mon"]. $date["mday"].$r;
+		return($u);
+	}
+
+	public static function GetDateNow()
+	{
+		$date = getdate();
+		$u =  $date["mday"].$date["mon"].$date["year"];
+		return($u);
+	}
 }

@@ -52,12 +52,14 @@ class Warehouse_Controller extends \Zi\Lock_c
     $req = APP::request();
     if ($req->isPost()) {
       $params = $req->post();
-      $query = "id = '" . $params['search'] . "'";
+      $search = ZiUtil::is_set('search', $params);
+      $query = "id = '" . $search . "'";
     } else {
       $params = $req->get();
-      $query = "warehouse_nama ILIKE '%".$params['search']."%'";
+      $search = ZiUtil::is_set('search', $params);
+      $query = "warehouse_nama ILIKE '%".$search."%'";
     }
-    $results = ZiUtil::search_result_DB($query, $params, Warehouse);
+    $results = ZiUtil::search_result_DB($query, $params, 'Warehouse');
     return ZiUtil::dataset_json($results['query'], $results['total']);
   }
 

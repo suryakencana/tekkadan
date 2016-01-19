@@ -57,10 +57,11 @@ class Itemprice_Controller extends Zi\Lock_c
       $query = "$anchor = '$value'";
     } else {
       $params = $req->get();
-      $query = "item_kode ILIKE '%" . $params['search'] . "%'";
+      $search = ZiUtil::is_set('search', $params);
+      $query = "item_kode ILIKE '%" . $search . "%'";
     }
 
-    $results = ZiUtil::search_result_DB($query, $params, ItemPrice);
+    $results = ZiUtil::search_result_DB($query, $params, 'ItemPrice');
     return ZiUtil::dataset_json($results['query'], $results['total']);
   }
 

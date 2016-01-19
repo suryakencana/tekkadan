@@ -50,8 +50,9 @@ class UnitOM_Controller extends \Zi\Lock_c
   {
     $req = APP::request();
     $params = $req->get();
-    $query = "uom_nama ILIKE '%".$params['search']."%'";
-    $results = ZiUtil::search_result_DB($query, $params, UOM);
+    $search = ZiUtil::is_set('search', $params);
+    $query = "uom_nama ILIKE '%".$search."%'";
+    $results = ZiUtil::search_result_DB($query, $params, 'UOM');
     return ZiUtil::dataset_json($results['query'], $results['total']);
   }
 

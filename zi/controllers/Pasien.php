@@ -32,15 +32,16 @@ class Pasien_Controller extends \Zi\Lock_c
 
   public function index()
   {
-  
+
   }
 
   public function dataset()
   {
     $req = APP::request();
     $params = $req->get();
-    $query = "cust_usr_nama ILIKE '%" . $params['search'] ."%' OR cust_usr_kode LIKE '%".$params['search']."%'";
-    $results = ZiUtil::search_result_DB($query, $params, Pasien);
+    $search = ZiUtil::is_set('search', $get);
+    $query = "cust_usr_nama ILIKE '%" .$search ."%' OR cust_usr_kode LIKE '%".$search."%'";
+    $results = ZiUtil::search_result_DB($query, $params, 'Pasien');
 
     return ZiUtil::dataset_json($results['query'], $results['total']);
   }
@@ -54,8 +55,9 @@ class Pasien_Controller extends \Zi\Lock_c
   {
     $req = APP::request();
     $params = $req->get();
-    $query = "jenis_nama ILIKE '%".$params['search']."%'";
-    $results = ZiUtil::search_result_DB($query, $params, JenisPasien);
+    $search = ZiUtil::is_set('search', $get);
+    $query = "jenis_nama ILIKE '%".$search."%'";
+    $results = ZiUtil::search_result_DB($query, $params, 'JenisPasien');
 
     return ZiUtil::dataset_json($results['query'], $results['total']);
   }
@@ -64,8 +66,9 @@ class Pasien_Controller extends \Zi\Lock_c
   {
     $req = APP::request();
     $params = $req->get();
-    $query = "cust_usr_nama ILIKE '%" . $params['search'] ."%' OR cust_usr_kode LIKE '%".$params['search']."%'";
-    $results = ZiUtil::search_result_DB($query, $params, RegPasien);
+    $search = ZiUtil::is_set('search', $get);
+    $query = "cust_usr_nama ILIKE '%" . $search ."%' OR cust_usr_kode LIKE '%".$search."%'";
+    $results = ZiUtil::search_result_DB($query, $params, 'RegPasien');
 
     return ZiUtil::dataset_json($results['query'], $results['total']);
   }
@@ -88,7 +91,7 @@ class Pasien_Controller extends \Zi\Lock_c
   *
   */
   public function a001(){
-   
+
   }
 
   /**
@@ -96,15 +99,15 @@ class Pasien_Controller extends \Zi\Lock_c
   *
   */
   public function s003(){
-    
+
   }
 
   public function v005($id = null){
 
-   
+
   }
 
   public function d011($id = null){
-   
+
   }
 }

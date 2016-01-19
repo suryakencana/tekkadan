@@ -30,9 +30,11 @@ class Selling_Controller extends \Zi\Lock_c
   {
     $req = APP::request();
     $params = $req->get();
-    $query = "item_kode = '" . $params['item_kode'] . "' AND price_list ='" . $params['price_list'] . "'";
+    $item_kode = ZiUtil::is_set('item_kode', $params);
+    $price_list = ZiUtil::is_set('price_list', $params);
+    $query = "item_kode = '" . $item_kode . "' AND price_list ='" . $price_list . "'";
 
-    $results = ZiUtil::search_result_DB($query, $params, ItemPrice);
+    $results = ZiUtil::search_result_DB($query, $params, 'ItemPrice');
     return ZiUtil::dataset_json($results['query'], $results['total']);
   }
 
@@ -40,8 +42,9 @@ class Selling_Controller extends \Zi\Lock_c
   {
     $req = APP::request();
     $params = $req->get();
-    $query = "dosis ILIKE '%" . $params['search'] . "%'";
-    $results = ZiUtil::search_result_DB($query, $params, Dosis);
+    $search = ZiUtil::is_set('search', $params);
+    $query = "dosis ILIKE '%" . $search . "%'";
+    $results = ZiUtil::search_result_DB($query, $params, 'Dosis');
 
     return ZiUtil::dataset_json($results['query'], $results['total']);
   }
@@ -50,8 +53,9 @@ class Selling_Controller extends \Zi\Lock_c
   {
     $req = APP::request();
     $params = $req->get();
-    $query = "pgw_nama ILIKE '%" . $params['search'] . "%' AND pgw_jenis_pegawai = 1";
-    $results = ZiUtil::search_result_DB($query, $params, Dokter);
+    $search = ZiUtil::is_set('search', $params);
+    $query = "pgw_nama ILIKE '%" . $search . "%' AND pgw_jenis_pegawai = 1";
+    $results = ZiUtil::search_result_DB($query, $params, 'Dokter');
 
     return ZiUtil::dataset_json($results['query'], $results['total']);
   }
@@ -331,8 +335,9 @@ class Selling_Controller extends \Zi\Lock_c
   {
     $req = APP::request();
     $params = $req->get();
-    $query = "pasien_nama ILIKE '%".$params['search']."%'";
-    $results = ZiUtil::search_result_DB($query, $params, SalesApotik);
+    $search = ZiUtil::is_set('search', $params);
+    $query = "pasien_nama ILIKE '%".$search."%'";
+    $results = ZiUtil::search_result_DB($query, $params, 'SalesApotik');
 
     return ZiUtil::dataset_json($results['query'], $results['total']);
   }
