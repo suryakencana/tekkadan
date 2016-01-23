@@ -284,54 +284,54 @@ class Selling_Controller extends \Zi\Lock_c
     $detail = DetailApotik::all(array('conditions' => "parent = '" . $id . "'" ));
 
     $data["rows"] = $detail;
+    APP::render('selling/print_invoice_apotik', $data);
+    // $paper = array(array(0,0,432,324), "portrait");
+    // $dompdf = APP::print_render('selling/print_invoice_apotik', $data, $paper);
 
-    $paper = array(array(0,0,432,324), "portrait");
-    $dompdf = APP::print_render('selling/print_invoice_apotik', $data, $paper);
+    // $pdf = $dompdf->get_canvas();
+    // $fontMetrics = $dompdf->getFontMetrics();
+    // // $font = $fontMetrics->getSystemFonts();
+    // $font = $fontMetrics->getFont('helvetica');
+    // // If verdana isn't available, we'll use sans-serif.
+    // // if (!isset($font)) { $fontMetrics->getFont("sans-serif"); }
+    // $size = 6;
+    // $color = array(0,0,0);
 
-    $pdf = $dompdf->get_canvas();
-    $fontMetrics = $dompdf->getFontMetrics();
-    // $font = $fontMetrics->getSystemFonts();
-    $font = $fontMetrics->getFont('helvetica');
-    // If verdana isn't available, we'll use sans-serif.
-    // if (!isset($font)) { $fontMetrics->getFont("sans-serif"); }
-    $size = 6;
-    $color = array(0,0,0);
+    // $text_height = $fontMetrics->getFontHeight($font, $size);
 
-    $text_height = $fontMetrics->getFontHeight($font, $size);
+    // $foot = $pdf->open_object();
 
-    $foot = $pdf->open_object();
+    // $w = $pdf->get_width();
+    // $h = $pdf->get_height();
+    // $y = $h - 2 * $text_height - 24;
 
-    $w = $pdf->get_width();
-    $h = $pdf->get_height();
-    $y = $h - 2 * $text_height - 24;
+    // $pdf->line(16, $y, $w - 16, $y, $color, 1);
 
-    $pdf->line(16, $y, $w - 16, $y, $color, 1);
+    // $y += $text_height;
 
-    $y += $text_height;
+    // $text = sprintf("# %s", $id);
+    // $pdf->page_text(16, $y, $text, $font, $size, $color);
 
-    $text = sprintf("# %s", $id);
-    $pdf->page_text(16, $y, $text, $font, $size, $color);
+    // $text = "Page {PAGE_NUM} of {PAGE_COUNT}";
 
-    $text = "Page {PAGE_NUM} of {PAGE_COUNT}";
-
-    // Center the text
-    $width = $fontMetrics->getTextWidth("Page 1 of 2", $font, $size);
-    $pdf->page_text($w / 2 - $width / 2, $y, $text, $font, $size, $color);
-
-    $pdf->close_object();
-    $pdf->add_object($foot, "all");
-
-    // $watermark = $pdf->open_object();
-    // $pdf->set_opacity(0.87);
-    // $width = Font_Metrics::get_text_width("COPY", Font_Metrics::get_font("verdana", "bold"), 110);
-    // $pdf->text(($w / 2 - $width / 2) + 10, $h / 2, "COPY", Font_Metrics::get_font("verdana", "bold"),
-    //   110, array(0.98, 0.98, 0.98), 0, 13.9, -37);
+    // // Center the text
+    // $width = $fontMetrics->getTextWidth("Page 1 of 2", $font, $size);
+    // $pdf->page_text($w / 2 - $width / 2, $y, $text, $font, $size, $color);
 
     // $pdf->close_object();
-    // $pdf->add_object($watermark, "all");
+    // $pdf->add_object($foot, "all");
+
+    // // $watermark = $pdf->open_object();
+    // // $pdf->set_opacity(0.87);
+    // // $width = Font_Metrics::get_text_width("COPY", Font_Metrics::get_font("verdana", "bold"), 110);
+    // // $pdf->text(($w / 2 - $width / 2) + 10, $h / 2, "COPY", Font_Metrics::get_font("verdana", "bold"),
+    // //   110, array(0.98, 0.98, 0.98), 0, 13.9, -37);
+
+    // // $pdf->close_object();
+    // // $pdf->add_object($watermark, "all");
 
 
-    $dompdf->stream(sprintf("%s.pdf", $id), array("Attachment"=>0));
+    // $dompdf->stream(sprintf("%s.pdf", $id), array("Attachment"=>0));
   }
 
   public function dataset_penjualan()
@@ -353,10 +353,10 @@ class Selling_Controller extends \Zi\Lock_c
     $cols = array();
     $cols[] = json_decode('{"field": "state", "checkbox": true}');
     $cols[] = json_decode('{ "title": "Nota", "field": "id"}');
-    $cols[] = json_decode('{ "title": "Tanggal Posting", "field": "posting_date"}');
-    $cols[] = json_decode('{ "title": "Jam Posting", "field": "posting_time"}');
-    $cols[] = json_decode('{ "title": "Reg. no", "field": "pasien_reg_no"}');
-    $cols[] = json_decode('{ "title": "Nama Pasien", "field": "pasien_nama"}');
+    $cols[] = json_decode('{ "title": "Tanggal Posting", "field": "posting_date", "sortable": true}');
+    $cols[] = json_decode('{ "title": "Jam Posting", "field": "posting_time", "sortable": true}');
+    $cols[] = json_decode('{ "title": "Reg. no", "field": "pasien_reg_no", "sortable": true}');
+    $cols[] = json_decode('{ "title": "Nama Pasien", "field": "pasien_nama", "sortable": true}');
     $cols[] = json_decode('{ "title": "Alamat Pasien", "field": "pasien_alamat"}');
     $cols[] = json_decode('{ "title": "Jenis Tagihan", "field": "price_list"}');
     $cols[] = json_decode('{ "title": "Kasir", "field": "kasir"}');

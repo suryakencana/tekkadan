@@ -5,93 +5,111 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Purchase</title>
     <meta name="generator" content="kubuskotak">
-    <link rel="stylesheet" href="{{baseurl}}assets/css/print_static.css" type="text/css" />
+    
+    <style type="text/css">
+        @media print { 
+          body { 
+              background-color: transparent; 
+              color: black; 
+              font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
+              margin: 0px;
+              padding-top: 0px;
+              font-size: 12px;
+              letter-spacing: 0.0625em;
+          }
+      }
+      body { 
+          background-color: transparent;
+          color: black;
+          font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
+          margin: 0px;
+          padding-top: 0px;
+          font-size: 12px;
+          letter-spacing: 0.0625em;
+      }
+  </style>
 </head>
 
 <body>
-
-<div id="body">
-
-    <div id="section_header" style="font-size: 7pt; text-align: center;">
+<div id="section_header" style="font-size:14px;text-align: center;">
         {{ title | raw}}
     </div>
 
-    <div id="content" style="width: 100%;padding: 0.2em 1% 0.2em 1%;
-  min-height: 15em;">
+    <div id="content" style="width: 100%;">
 
-        <div class="page" style="font-size: 7pt">
+        <div class="page" style="font-size: 12px;">
 
-            <table style="width: 100%; font-size: 5pt;">
+            <table style="width: 100%; font-size: 12px;">
                 <tr>
-                    <td>#Invoice: <strong>{{ invoice }}</strong></td>
-                    <td><strong>{{price_list}}</strong> - Kasir: {{kasir}}</td>
+                    <td>#Invoice: {{ invoice }}</td>
+                    <td>{{price_list}} - Kasir: {{kasir}}</td>
                 </tr>
 
                 <tr>
-                    <td><strong>{{ posting_date }} {{ posting_time }}</strong></td>
-                    <td>Reg.no: <strong>{{ pasien_reg_no }}</strong></td>
+                    <td>{{ posting_date }} {{ posting_time }}</td>
+                    <td>Reg.no: {{ pasien_reg_no }}</td>
                 </tr>
 
                 <tr>
-                    <td>Alamat: <strong>{{ pasien_alamat }}</strong></td>
-                    <td>Dokter: <strong>{{ dokter }}</strong></td>
+                    <td>Alamat: {{ pasien_alamat }}</td>
+                    <td>Dokter: {{ dokter }}</td>
                 </tr>
             </table>
 
-            <table style="width: 100%; border-top: 1px solid black; border-bottom: 1px solid black; font-size: 5pt;">
+            <table style="width: 100%; border-top: 1px dashed black; border-bottom: 1px dashed black; font-size: 12px;">
 
                 <tr>
-                    <td>Pasien: <strong>{{ pasien_nama }}</strong></td>
+                    <td>Pasien: {{ pasien_nama }}</td>
                     <td colspan="5"></td>
                 </tr>
 
             </table>
 
-            <table class="change_order_items" style="width: 100%;">
+            <table class="change_order_items" style="font-size: 12px;width: 100%;">
                 <tbody>
-                <tr>
-                    <th>Kode</th>
-                    <th>Barang</th>
-                    <th>Quantity</th>
-                    <th colspan="2">Harga</th>
-                    <th>Sub Total</th>
-                </tr>
+                    <tr>
+                        <th>Kode</th>
+                        <th>Barang</th>
+                        <th>Quantity</th>
+                        <th colspan="2">Harga</th>
+                        <th>Sub Total</th>
+                    </tr>
 
-                {% for row in rows %}
+                    {% for row in rows %}
                     <tr class="even_row">
-                    <td style="text-align: center;">{{ row.id}}</td>
+                        <td style="text-align: center;">{{ row.id}}</td>
                         <td>{{ row.item_kode }} - {{ row.item_nama }}</td>
                         <td style="text-align: center;">{{row.actual_qty | number_format(0, '.', ',')}}</td>
                         <td style="text-align: right; border-right-style: none;">Rp. {{ row.item_price | number_format(2, '.', ',')}}</td>
                         <td class="change_order_unit_col" style="border-left-style: none;">{{ row.item_uom}}</td>
                         <td class="change_order_total_col" style="text-align: right;">Rp. {{ row.amount | number_format(2, '.', ',')}}</td>
                     </tr>
-                {% endfor %}
+                    {% endfor %}
 
                 </tbody>
                 <tr>
                     <td colspan="3" style="text-align: right;"></td>
-                    <td colspan="2" style="text-align: right;"><strong>Total:</strong></td>
-                    <td class="change_order_total_col" style="text-align: right;"><strong>Rp. {{amount | number_format(2, '.', ',')}}</strong></td>
+                    <td colspan="2" style="text-align: right;">Total:</td>
+                    <td class="change_order_total_col" style="text-align: right;">Rp. {{amount | number_format(2, '.', ',')}}</td>
                 </tr>
                 <tr>
                     <td colspan="3" style="text-align: right;"></td>
-                    <td colspan="2" style="text-align: right;"><strong>Bayar:</strong></td>
-                    <td class="change_order_total_col" style="text-align: right;"><strong>Rp. {{payment | number_format(2, '.', ',')}}</strong></td>
+                    <td colspan="2" style="text-align: right;">Bayar:</td>
+                    <td class="change_order_total_col" style="text-align: right;">Rp. {{payment | number_format(2, '.', ',')}}</td>
                 </tr>
                 <tr>
                     <td colspan="3" style="text-align: right;"></td>
-                    <td colspan="2" style="text-align: right;"><strong>Kembali:</strong></td>
-                    <td class="change_order_total_col" style="text-align: right;"><strong>Rp. {{ (payment - amount) | number_format(2, '.', ',')}}</strong></td>
+                    <td colspan="2" style="text-align: right;">Kembali:</td>
+                    <td class="change_order_total_col" style="text-align: right;">Rp. {{ (payment - amount) | number_format(2, '.', ',')}}</td>
                 </tr>
             </table>
         </div>
 
     </div>
-</div>
 
-<script type="text/javascript">
-    window.print();
+
+    <script type="text/javascript">
+        window.print();
 
     // close the window after print
     // NOTE: doesn't close if print is cancelled in Chrome
