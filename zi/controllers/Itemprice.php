@@ -32,6 +32,7 @@ class Itemprice_Controller extends Zi\Lock_c
 
     $cols[] = json_decode('{"field": "state", "checkbox": true}');
     $cols[] = json_decode('{ "title": "Kode Item", "field": "item_kode"}');
+    $cols[] = json_decode('{ "title": "Nama Item", "field": "item_nama"}');
     $cols[] = json_decode('{ "title": "Price List", "field": "price_list"}');
     $cols[] = json_decode('{ "title": "Harga", "field": "price_list_rate"}');
     $cols[] = json_decode('{ "title": "", "field": "id"}');
@@ -61,7 +62,7 @@ class Itemprice_Controller extends Zi\Lock_c
       $query = "item_kode ILIKE '%" . $search . "%'";
     }
 
-    $results = ZiUtil::search_result_DB($query, $params, 'ItemPrice');
+    $results = ZiUtil::search_result_DB($query, $params, 'ItemPriceList');
     return ZiUtil::dataset_json($results['query'], $results['total']);
   }
 
@@ -144,7 +145,7 @@ class Itemprice_Controller extends Zi\Lock_c
     $grid['url_submit'] = App::urlFor("itemprice.s003");
     $data = null;
     if(!is_null($id)){
-      $data = ItemPrice::find($id);
+      $data = ItemPriceList::find($id);
     }
     $grid['data'] = $data;
 

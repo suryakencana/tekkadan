@@ -263,7 +263,7 @@ class Selling_Controller extends \Zi\Lock_c
   {
     $sales = SalesApotik::find($id);
     $data["title"] = "<div>
-<div>APOTEK RUMAH SAKIT MATA MASYARAKAT</div>
+<div>DEPO FARMASI RUMAH SAKIT MATA MASYARAKAT</div>
 <div>JAWA TIMUR</div>
 <div>JL. GAYUNG KEBONSARI TIMUR 49</div>
 <div>SURABAYA</div>
