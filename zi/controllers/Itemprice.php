@@ -59,7 +59,7 @@ class Itemprice_Controller extends Zi\Lock_c
     } else {
       $params = $req->get();
       $search = ZiUtil::is_set('search', $params);
-      $query = "item_kode ILIKE '%" . $search . "%'";
+      $query = "item_nama ILIKE '%" . $search . "%'";
     }
 
     $results = ZiUtil::search_result_DB($query, $params, 'ItemPriceList');
