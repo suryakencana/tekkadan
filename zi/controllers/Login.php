@@ -45,6 +45,7 @@ class Login_Controller extends \Zi\Lock_c
 	public function getOut()
 	{
 		$this->auth->logout(true);
-		App::flash('info',"Come back later")->redirect('home');
+		// App::flash('info',"Come back later")->redirect('home');
+		header("location:http://" . $_SERVER['HTTP_HOST']);
 	}
 }
