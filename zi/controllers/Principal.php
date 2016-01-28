@@ -31,9 +31,9 @@ class Principal_Controller extends Zi\Lock_c
     $grid["title"] = "Principal / Brand";
 
 
-    $cols[] = json_decode('{"field": "state", "checkbox": true}');
-    $cols[] = json_decode('{ "title": "Nama", "field": "nama", "sortable": true}');
-    $cols[] = json_decode('{ "title": "Aktif", "field": "aktif"}');
+    // $cols[] = json_decode('{"field": "state", "checkbox": true}');
+    $cols[] = json_decode('{ "label": "Nama", "name": "nama", "key": true}');
+    $cols[] = json_decode('{ "label": "Aktif", "name": "aktif", "formatter": "checkbox"}');
 
 
     $grid["url_add"] = App::urlFor("principal.a001");
@@ -43,7 +43,7 @@ class Principal_Controller extends Zi\Lock_c
     $grid["method"] = "GET";
     $grid["cols"] = json_encode($cols);
 
-    APP::render('principal/grid_principal', $grid);
+    APP::render('component/jqgrid_view', $grid);
   }
 
   public function dataset()
@@ -52,7 +52,7 @@ class Principal_Controller extends Zi\Lock_c
     $get = $req->get();
     $search = ZiUtil::is_set('search', $get);
     $query = "nama ILIKE '%".$search."%'";
-    $results = ZiUtil::search_result_DB($query, $get, 'Principal');
+    $results = ZiUtil::search_result_jq_DB($query, $get, 'Principal');
     return ZiUtil::dataset_json($results['query'], $results['total']);
   }
 

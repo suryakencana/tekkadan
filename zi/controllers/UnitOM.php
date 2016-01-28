@@ -31,9 +31,9 @@ class UnitOM_Controller extends \Zi\Lock_c
     $grid["title"] = "Unit Of Measure";
 
 
-    $cols[] = json_decode('{"field": "state", "checkbox": true}');
-    $cols[] = json_decode('{ "title": "Nama", "field": "uom_nama", "sortable": true}');
-    $cols[] = json_decode('{ "title": "Aktif", "field": "aktif"}');
+    // $cols[] = json_decode('{"field": "state", "checkbox": true}');
+    $cols[] = json_decode('{ "label": "Nama", "name": "uom_nama", "key": true}');
+    $cols[] = json_decode('{ "label": "Aktif", "name": "aktif"}');
 
 
     $grid["url_add"] = App::urlFor("unitOM.a001");
@@ -43,7 +43,7 @@ class UnitOM_Controller extends \Zi\Lock_c
     $grid["method"] = "GET";
     $grid["cols"] = json_encode($cols);
 
-    APP::render('uom/grid_uom', $grid);
+    APP::render('component/jqgrid_view', $grid);
   }
 
   public function dataset()
@@ -52,7 +52,7 @@ class UnitOM_Controller extends \Zi\Lock_c
     $params = $req->get();
     $search = ZiUtil::is_set('search', $params);
     $query = "uom_nama ILIKE '%".$search."%'";
-    $results = ZiUtil::search_result_DB($query, $params, 'UOM');
+    $results = ZiUtil::search_result_jq_DB($query, $params, 'UOM');
     return ZiUtil::dataset_json($results['query'], $results['total']);
   }
 

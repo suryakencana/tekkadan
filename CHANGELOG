@@ -1,0 +1,34 @@
+Given a version number MAJOR.MINOR.PATCH, increment the:
+
+MAJOR version when you make incompatible API changes,
+MINOR version when you add functionality in a backwards-compatible manner, and
+PATCH version when you make backwards-compatible bug fixes.
+
+:: pre-alpha
+- [x][MNR][feature][ITEM] not mandotary grup principal / merk
+- [x][MNR][feature][ITEM] mandotary grup item (group item obat)
+- [x][MNR][feature][ITEM] re-order qty, re-order level, re-order minimum default 5
+- [x][MNR][feature][PRICELIST] mandotary default penjualan
+- [x][MNR][feature][POS] Dosis inputan biasa not mandotary
+
+
+:: 1.1.27
+- [x][MJR][DB][SYSTEM] semantic versioning generator (create-table version)
+- [x][MJR][SYSTEM] ganti tabel ui jqgrid
+- [x][MJR][DB] view stock_balance add item_nama field
+- [x][MNR][DB] add uniq key item_kode
+- [MNR][feature][POS] keyboard fungsi next step inputan key code 13/10 (enter)
+- [MJR][report][POS] laporan penjualan berdasarkan tagihan, range tanggal , no.invoice
+- [MJR][report][MUTASI] mutasi keluar masuk item per harian (by date)
+- [MJR][report][POS] Laporan Penjualan per item dan tanggal
+- [MJR][report][POS] Print per transaksi record
+- [MJR][UX][POS] Browse item barang menggunakan autocomplete (as like on mountdream)
+- [MNR][UX][POS] Editable qty dan harga jual item
+
+:: Register Pasien
+- tagihan kasir di table klinik_folio detail item penjualan
+ -> ambil reg_id dari klinik_registrasi untuk input id_reg klinik_folio
+ -> fol_nama untuk nama per item
+ -> id_biaya inputan kode item
+ -> fol_jenis default apotik T
+ -> fol_jumlah inputan qty item

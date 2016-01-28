@@ -1,22 +1,22 @@
 <?php
 /**
- * Copyright (c) 11 2015 | surya
- * 14/11/15 nanang.ask@kubuskotak.com
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- *  Itemprice.php
- */
+* Copyright (c) 11 2015 | surya
+* 14/11/15 nanang.ask@kubuskotak.com
+* This program is free software; you can redistribute it and/or
+* modify it under the terms of the GNU General Public License
+* as published by the Free Software Foundation; either version 2
+* of the License, or (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program; if not, write to the Free Software
+* Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+*  Itemprice.php
+*/
 
 class Itemprice_Controller extends Zi\Lock_c
 {
@@ -28,14 +28,23 @@ class Itemprice_Controller extends Zi\Lock_c
   public function index()
   {
     $grid["folder"] = "Stock";
-    $grid["title"] = "Daftar Item Price";
+    $grid["title"] = "Daftar Item Harga";
 
-    $cols[] = json_decode('{"field": "state", "checkbox": true}');
-    $cols[] = json_decode('{ "title": "Kode Item", "field": "item_kode"}');
-    $cols[] = json_decode('{ "title": "Nama Item", "field": "item_nama"}');
-    $cols[] = json_decode('{ "title": "Price List", "field": "price_list"}');
-    $cols[] = json_decode('{ "title": "Harga", "field": "price_list_rate"}');
-    $cols[] = json_decode('{ "title": "", "field": "id"}');
+    // $cols[] = json_decode('{"field": "state", "checkbox": true}');
+    $cols[] = json_decode('{ "label": "Kode Item", "name": "item_kode"}');
+    $cols[] = json_decode('{ "label": "Nama Item", "name": "item_nama"}');
+    $cols[] = json_decode('{ "label": "Price List", "name": "price_list"}');
+    $cols[] = json_decode('{ "label": "Harga", "name": "price_list_rate",
+      "align": "right",
+      "formatter": "currency",
+      "formatoptions": {
+        "decimalSeparator": ".",
+        "decimalPlaces": "2",
+        "thousandsSeparator": ",",
+        "prefix": "Rp. " }
+      }'
+    );
+    $cols[] = json_decode('{ "label": "", "name": "id", "key": true, "hidden": true}');
 
 
     $grid["url_add"] = App::urlFor("itemprice.a001");
@@ -45,7 +54,7 @@ class Itemprice_Controller extends Zi\Lock_c
     $grid["method"] = "GET";
     $grid["cols"] = json_encode($cols);
 
-    APP::render('itemprice/grid_itemprice', $grid);
+    APP::render('component/jqgrid_view', $grid);
   }
 
   public function dataset()
@@ -62,7 +71,7 @@ class Itemprice_Controller extends Zi\Lock_c
       $query = "item_nama ILIKE '%" . $search . "%'";
     }
 
-    $results = ZiUtil::search_result_DB($query, $params, 'ItemPriceList');
+    $results = ZiUtil::search_result_jq_DB($query, $params, 'ItemPriceList');
     return ZiUtil::dataset_json($results['query'], $results['total']);
   }
 
@@ -106,9 +115,9 @@ class Itemprice_Controller extends Zi\Lock_c
   }
 
   /**
-   * POST /itemprice
-   *
-   */
+  * POST /itemprice
+  *
+  */
   public function s003()
   {
     $req = App::request();

@@ -360,7 +360,8 @@
                 dataType: 'json',
                 quietMillis: 100,
                 data: function (term, page) {
-                    return { aktif: 'TRUE', sort:'price_list_nama', order: 'asc', search: term, offset: (page - 1) * 15, limit: 15 };
+                    return { aktif: 'TRUE', sort:'price_list_nama', order: 'asc', search: term,
+                    page: page, rows: 15 };
                 },
                 results: function (data, page) {
                     var more = (page * 15) < data.total;
@@ -372,7 +373,7 @@
                 if (id !== "") {
                     $.ajax("{{url_price_list}}", {
                         dataType: "json",
-                        data: { search: id, offset: 0, limit: 1 }
+                        data: { search: id, page: 1, rows: 1 }
                     }).done(function(data) {
                         $("#invoice_no").html("SINV-" + data.rows[0].kode_invoice);
                         paramsPage["jenis-tagihan"] = data.rows[0].price_list_nama;

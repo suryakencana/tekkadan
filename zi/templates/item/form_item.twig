@@ -66,7 +66,7 @@
                     dataType: 'json',
                     quietMillis: 100,
                     data: function (term, page) {
-                        return { aktif: 'TRUE', sort:'uom_nama', order: 'asc', search: term, offset: (page - 1) * 15, limit: 15 };
+                        return { aktif: 'TRUE', sort:'uom_nama', order: 'asc', search: term, page: page, rows: 15 };
                     },
                     results: function (data, page) {
                         var more = (page * 15) < data.total;
@@ -78,7 +78,7 @@
                     if (id !== "") {
                         $.ajax("{{url_item_uom}}", {
                             dataType: "json",
-                            data: { search: id, offset: 0, limit: 1 }
+                            data: { search: id, page: 1, rows: 1 }
                         }).done(function(data) { callback(data.rows[0]); });
                     }
                 },
@@ -104,7 +104,7 @@
                     dataType: 'json',
                     quietMillis: 100,
                     data: function (term, page) {
-                        return { aktif: 'TRUE', sort:'nama', order: 'asc', search: term, offset: (page - 1) * 15, limit: 15 };
+                        return { aktif: 'TRUE', sort:'nama', order: 'asc', search: term, page: page, rows: 15 };
                     },
                     results: function (data, page) {
                         var more = (page * 15) < data.total;
@@ -116,7 +116,7 @@
                     if (id !== "") {
                         $.ajax("{{url_principal}}", {
                             dataType: "json",
-                            data: { search: id, offset: 0, limit: 1 }
+                            data: { search: id, page: 1, rows: 1 }
                         }).done(function(data) { callback(data.rows[0]); });
                     }
                 },

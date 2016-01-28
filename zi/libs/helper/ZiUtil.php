@@ -53,6 +53,33 @@ class ZiUtil
 		return $result;
 	}
 
+	public static function search_result_jq_DB($query, $params, $model)
+	{
+		$result = array();
+		$limit = isset($params['rows']) ? (int)$params['rows'] : 0;
+		$offset = isset($params['page']) ? ((int)$params['page']-1)*(int)$params['rows'] : 0 ;
+
+		$condition = array('conditions' => $query, 'limit' => $limit, 'offset' => $offset);
+		if(!empty($params['sidx']) && isset($params['sidx']) && isset($params['sord'])){
+			$sort = $params['sidx'];
+			$order = $params['sord'];
+			$condition['order'] = "$sort $order";
+		}
+		if(isset($params['aktif'])){
+			//$params['aktif'] = TRUE or False;
+			$aktif = $params['aktif'];
+			$condition['conditions'] = $condition['conditions']." AND aktif = $aktif";
+		}
+
+		$result['query'] = $model::all($condition);
+		// untuk jqgrid total adalah jumlah record dibagi limit (jumlah halaman)
+		$total = $model::count(array('conditions' => $query));
+		$total = (int)$total / (int)$limit;
+		$total = (int)$total > 0 ? (int) $total : 1;
+		$result['total'] = $total;
+		return $result;
+	}
+
 	public static function unique_error($error) {
 		$pos = strpos($error, 'Unique violation');
 		if ($pos !== false) {

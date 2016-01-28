@@ -32,14 +32,14 @@ class Pricelist_Controller extends Zi\Lock_c
     $grid["title"] = "Price list / Daftar Harga";
 
 
-    $cols[] = json_decode('{"field": "state", "checkbox": true}');
-    $cols[] = json_decode('{ "title": "ID", "field": "id", "visible": false}');
-    $cols[] = json_decode('{ "title": "Nama", "field": "price_list_nama"}');
-    $cols[] = json_decode('{ "title": "Kode Tagihan", "field": "kode_invoice"}');
-    $cols[] = json_decode('{ "title": "Mata uang", "field": "currency"}');
-    $cols[] = json_decode('{ "title": "Aktif", "field": "aktif"}');
-    $cols[] = json_decode('{ "title": "Pembelian", "field": "pembelian"}');
-    $cols[] = json_decode('{ "title": "Penjualan", "field": "penjualan"}');
+    // $cols[] = json_decode('{"field": "state", "checkbox": true}');
+    $cols[] = json_decode('{ "label": "ID", "name": "id", "key": true, "hidden": true}');
+    $cols[] = json_decode('{ "label": "Nama", "name": "price_list_nama"}');
+    $cols[] = json_decode('{ "label": "Kode Tagihan", "name": "kode_invoice"}');
+    $cols[] = json_decode('{ "label": "Mata uang", "name": "currency"}');
+    $cols[] = json_decode('{ "label": "Aktif", "name": "aktif", "formatter": "checkbox"}');
+    $cols[] = json_decode('{ "label": "Pembelian", "name": "pembelian", "formatter": "checkbox"}');
+    $cols[] = json_decode('{ "label": "Penjualan", "name": "penjualan", "formatter": "checkbox"}');
 
 
     $grid["url_add"] = App::urlFor("pricelist.a001");
@@ -49,7 +49,7 @@ class Pricelist_Controller extends Zi\Lock_c
     $grid["method"] = "GET";
     $grid["cols"] = json_encode($cols);
 
-    APP::render('pricelist/grid_pricelist', $grid);
+    APP::render('component/jqgrid_view', $grid);
   }
 
   public function dataset()
@@ -65,7 +65,7 @@ class Pricelist_Controller extends Zi\Lock_c
     $params = $req->get();
     $search = ZiUtil::is_set('search', $params);
     $query = "price_list_nama ILIKE '%" . $search . "%'";
-    $results = ZiUtil::search_result_DB($query, $params, 'PriceList');
+    $results = ZiUtil::search_result_jq_DB($query, $params, 'PriceList');
     return ZiUtil::dataset_json($results['query'], $results['total']);
   }
 

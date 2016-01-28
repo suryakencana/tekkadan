@@ -28,7 +28,7 @@
                     dataType: 'json',
                     quietMillis: 100,
                     data: function (term, page) {
-                        return { search: term, offset: (page - 1) * 15, limit: 15 };
+                        return { search: term, page: page, rows: 15 };
                     },
                     results: function (data, page) {
                         var more = (page * 15) < data.total;
@@ -40,7 +40,7 @@
                     if (id !== "") {
                         $.ajax("{{url_price_list}}", {
                             dataType: "json",
-                            data: { search: id, offset: 0, limit: 1 }
+                            data: { search: id, page: 1, rows: 1 }
                         }).done(function(data) { callback(data.rows[0]); });
                     }
                 },
@@ -66,7 +66,7 @@
                     dataType: 'json',
                     quietMillis: 100,
                     data: function (term, page) {
-                        return { search: term, offset: (page - 1) * 15, limit: 15 };
+                        return { search: term, page: page, rows: 15 };
                     },
                     results: function (data, page) {
                         var more = (page * 15) < data.total;
@@ -79,7 +79,7 @@
                         $.ajax("{{url_item}}", {
                             dataType: "json",
                             method: 'POST',
-                            data: { search: id, offset: 0, limit: 1 }
+                            data: { search: id, page: 1, rows: 1 }
                         }).done(function(data) { callback(data.rows[0]); });
                     }
                 },
@@ -131,7 +131,7 @@
                             <div class="row">
                                 <div class="col-sm-4">
                                     <label>Price List:</label>
-                                    <input type="hidden" name="price_list" class="price_list" value="{{data.price_list}}"/>
+                                    <input type="hidden" name="price_list" class="price_list" value="{{data.price_list}}" {% if data.id %}readonly{% endif %}/>
                                     <span class="help-block">Daftar Harga per Item e.g ASKES, JAMKESDA, BPJS</span>
                                 </div>
                             </div>
@@ -140,14 +140,14 @@
                             <div class="row">
                                 <div class="col-sm-4">
                                     <label>Kode Item:</label>
-                                    <input type="hidden" name="item_kode" class="item_kode" value="{{data.item_kode}}"/>
+                                    <input type="hidden" name="item_kode" class="item_kode" value="{{data.item_kode}}" {% if data.id %}readonly{% endif %}/>
                                     <input type="hidden" name="item" value="{{ data.item }}" />
                                     <input type="hidden" name="gen_id" value="{{ data.id }}" />
                                     <span class="help-block">Kode Item e.g ITEM-AB001</span>
                                 </div>
                                 <div class="col-sm-4">
                                     <label>Nama Item:</label>
-                                    <input type="text" name="item_nama" class="form-control item_nama" value="{{data.item_nama}}" readonly="" />
+                                    <input type="text" name="item_nama" class="form-control item_nama" value="{{data.item_nama}}" readonly/>
                                 </div>
                             </div>
                         </div>

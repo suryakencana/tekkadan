@@ -340,7 +340,7 @@ class Selling_Controller extends \Zi\Lock_c
     $params = $req->get();
     $search = ZiUtil::is_set('search', $params);
     $query = "pasien_nama ILIKE '%".$search."%'";
-    $results = ZiUtil::search_result_DB($query, $params, 'SalesApotik');
+    $results = ZiUtil::search_result_jq_DB($query, $params, 'SalesApotik');
 
     return ZiUtil::dataset_json($results['query'], $results['total']);
   }
@@ -351,17 +351,35 @@ class Selling_Controller extends \Zi\Lock_c
     $grid['title'] = "Penjualan";
 
     $cols = array();
-    $cols[] = json_decode('{"field": "state", "checkbox": true}');
-    $cols[] = json_decode('{ "title": "Nota", "field": "id"}');
-    $cols[] = json_decode('{ "title": "Tanggal Posting", "field": "posting_date", "sortable": true}');
-    $cols[] = json_decode('{ "title": "Jam Posting", "field": "posting_time", "sortable": true}');
-    $cols[] = json_decode('{ "title": "Reg. no", "field": "pasien_reg_no", "sortable": true}');
-    $cols[] = json_decode('{ "title": "Nama Pasien", "field": "pasien_nama", "sortable": true}');
-    $cols[] = json_decode('{ "title": "Alamat Pasien", "field": "pasien_alamat"}');
-    $cols[] = json_decode('{ "title": "Jenis Tagihan", "field": "price_list"}');
-    $cols[] = json_decode('{ "title": "Kasir", "field": "kasir"}');
-    $cols[] = json_decode('{ "title": "Total", "field": "amount", "align": "right"}');
-    $cols[] = json_decode('{ "title": "Bayar", "field": "payment", "align": "right"}');
+    // $cols[] = json_decode('{"field": "state", "checkbox": true}');
+    $cols[] = json_decode('{ "label": "Nota", "name": "id", "key": true}');
+    $cols[] = json_decode('{ "label": "Tanggal Posting", "name": "posting_date", "sortable": true}');
+    $cols[] = json_decode('{ "label": "Jam Posting", "name": "posting_time", "sortable": true}');
+    $cols[] = json_decode('{ "label": "Reg. no", "name": "pasien_reg_no", "sortable": true}');
+    $cols[] = json_decode('{ "label": "Nama Pasien", "name": "pasien_nama", "sortable": true}');
+    $cols[] = json_decode('{ "label": "Alamat Pasien", "name": "pasien_alamat"}');
+    $cols[] = json_decode('{ "label": "Jenis Tagihan", "name": "price_list"}');
+    $cols[] = json_decode('{ "label": "Kasir", "name": "kasir"}');
+    $cols[] = json_decode('{ "label": "Total", "name": "amount",
+      "align": "right",
+      "formatter": "currency",
+      "formatoptions": {
+        "decimalSeparator": ".",
+        "decimalPlaces": "2",
+        "thousandsSeparator": ",",
+        "prefix": "Rp. " }
+      }'
+    );
+    $cols[] = json_decode('{ "label": "Bayar", "name": "payment",
+      "align": "right",
+      "formatter": "currency",
+      "formatoptions": {
+        "decimalSeparator": ".",
+        "decimalPlaces": "2",
+        "thousandsSeparator": ",",
+        "prefix": "Rp. " }
+      }'
+    );
 
     $grid["cols"] = json_encode($cols);
 
@@ -370,6 +388,6 @@ class Selling_Controller extends \Zi\Lock_c
 
     $grid['gridtitle'] = "Penjualan";
 
-    APP::render('selling/grid_pos', $grid);
+    APP::render('component/jqgrid_view', $grid);
   }
 }

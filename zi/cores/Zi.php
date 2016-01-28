@@ -178,8 +178,15 @@ class Zi extends \Slim\Slim
     if ($this->auth->loggedIn()) {
 			$auth = $this->auth->getUser();
 		}
+
+    $condition = array('conditions' => "aktif = TRUE", 'limit' => 1, 'offset' => 0, 'order' => 'id DESC');
+    $version = \Version::first($condition);
+    if (!is_null($version) && !empty($version)) {
+      $version = sprintf("version - %d.%d.%s", $version->major, $version->minor, $version->patch);
+    }
+
     $uri = explode("/", substr($this->request()->getResourceUri(), 1));
-    $var_append = array('baseurl' => BASEURL,'asset' => ASSET, 'bread' => $uri, 'auth' => $auth);
+    $var_append = array('baseurl' => BASEURL,'asset' => ASSET, 'bread' => $uri, 'auth' => $auth, 'version' => $version);
     $this->view->appendData($var_append);
   }
 
@@ -189,10 +196,10 @@ class Zi extends \Slim\Slim
     $options = new \Dompdf\Options();
     // set options indvidiually
     $options->set('isPhpEnabled', true);
-    
+
     $dompdf->setOptions($options);
 
-    
+
     $dompdf->set_paper($paper[0], $paper[1]);
 
     $this->html_render($template);

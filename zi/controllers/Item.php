@@ -36,13 +36,12 @@ class Item_Controller
     $grid["title"] = "Daftar Item";
 
     $cols = array();
-    $cols[] = json_decode('{"field": "state", "checkbox": true}');
-    $cols[] = json_decode('{ "title": "Kode Item", "field": "item_kode", "sortable": true}');
-    $cols[] = json_decode('{ "title": "Nama Item","field": "item_nama", "sortable": true}');
-    $cols[] = json_decode('{ "title": "Grup Item","field": "item_grup", "sortable": true}');
-    $cols[] = json_decode('{ "title": "Principal|MERK Item", "field": "item_principal", "sortable": true}');
-    $cols[] = json_decode('{ "title": "Satuan|UOM", "field": "item_uom", "sortable": true}');
-    $cols[] = json_decode('{ "title": "", "field": "id", "visible": false}');
+    $cols[] = json_decode('{ "label": "Kode Item", "name": "item_kode"}');
+    $cols[] = json_decode('{ "label": "Nama Item","name": "item_nama"}');
+    $cols[] = json_decode('{ "label": "Grup Item","name": "item_grup"}');
+    $cols[] = json_decode('{ "label": "Principal|MERK Item", "name": "item_principal"}');
+    $cols[] = json_decode('{ "label": "Satuan|UOM", "name": "item_uom"}');
+    $cols[] = json_decode('{ "label": "", "name": "id", "key": true, "hidden": true}');
 
     $grid["url_add"] = App::urlFor("item.a001");
     $grid["url_edit"] = App::urlFor("item.v005");
@@ -51,7 +50,7 @@ class Item_Controller
     $grid["method"] = "GET";
     $grid["cols"] = json_encode($cols);
 
-    App::render("item/grid_item", $grid);
+    App::render("component/jqgrid_view", $grid);
   }
 
   public function dataset()
@@ -67,7 +66,7 @@ class Item_Controller
       $search = ZiUtil::is_set('search', $params);
       $query = "item_nama ILIKE '%" . $search . "%'";
     }
-    $results = ZiUtil::search_result_DB($query, $params, 'Item');
+    $results = ZiUtil::search_result_jq_DB($query, $params, 'Item');
     return ZiUtil::dataset_json($results['query'], $results['total']);
   }
 
