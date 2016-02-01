@@ -90,26 +90,15 @@ $(function(){
                 return;
             }
 
-            if (result["item_batch"] !== "") {
-                if (parseInt(result["actual_batch"]) < parseInt(result["item_qty"])) {
-                    Messenger().post({
-                        message: "Jumlah Stok Item tidak mencukupi",
-                        type: 'error',
-                        showCloseButton: true
-                    });
-                    return;
-                }
-            } else {
-                if (parseInt(result["actual_qty"]) < parseInt(result["item_qty"])) {
-                    Messenger().post({
-                        message: "Jumlah Stok Item tidak mencukupi",
-                        type: 'error',
-                        showCloseButton: true
-                    });
-
-                    return;
-                }
+            if (parseInt(result["item_qty"]) > parseInt(result["actual_qty"])) {
+              Messenger().post({
+                message: "Jumlah Stok Item tidak mencukupi",
+                type: 'error',
+                showCloseButton: true
+              });
+              return;
             }
+
             self.parent.insertData(result);
             self.parent.focus();
             tb_remove();

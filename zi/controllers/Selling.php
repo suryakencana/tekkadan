@@ -86,21 +86,56 @@ class Selling_Controller extends \Zi\Lock_c
     $grid['data']['price_list'] = "SWADANA";
 
     $cols = array();
-    $cols[] = json_decode('{"field": "state", "checkbox": true}');
-    $cols[] = json_decode('{ "title": "id", "field": "id", "visible": false}');
-    $cols[] = json_decode('{ "title": "Kode Item", "field": "item_kode"}');
-    $cols[] = json_decode('{ "title": "Nama Item","field": "item_nama"}');
-    $cols[] = json_decode('{ "title": "UOM", "field": "item_uom", "visible": false}');
-    $cols[] = json_decode('{ "title": "Dosis", "field": "dosis", "visible": false}');
-    $cols[] = json_decode('{ "title": "Batch no", "field": "item_batch", "visible": false}');
-    $cols[] = json_decode('{ "title": "Keterangan", "field": "keterangan", "visible": false}');
-    $cols[] = json_decode('{ "title": "Dari Gudang", "field": "from_warehouse", "visible": false}');
-    $cols[] = json_decode('{ "title": "Dari Gudang", "field": "from_warehouse_nama"}');
-    $cols[] = json_decode('{ "title": "Actual Qty", "field": "actual_qty", "visible": false}');
-    $cols[] = json_decode('{ "title": "Qty", "field": "item_qty"}');
-    $cols[] = json_decode('{ "title": "Harga Dasar", "field": "basic_rate", "visible": false}');
-    $cols[] = json_decode('{ "title": "Harga Jual", "field": "item_price"}');
-    $cols[] = json_decode('{ "title": "Total Harga", "field": "item_amount"}');
+    // $cols[] = json_decode('{"field": "state", "checkbox": true}');
+    $cols[] = json_decode('{ "label": "id", "name": "id", "key": true, "hidden": true}');
+    $cols[] = json_decode('{ "label": "Kode Item", "name": "item_kode"}');
+    $cols[] = json_decode('{ "label": "Nama Item","name": "item_nama"}');
+    $cols[] = json_decode('{ "label": "UOM", "name": "item_uom", "hidden": true}');
+    $cols[] = json_decode('{ "label": "Dosis", "name": "dosis", "hidden": true}');
+    $cols[] = json_decode('{ "label": "Batch no", "name": "item_batch", "hidden": true}');
+    $cols[] = json_decode('{ "label": "Keterangan", "name": "keterangan", "hidden": true}');
+    $cols[] = json_decode('{ "label": "Dari Gudang", "name": "from_warehouse", "hidden": true}');
+    $cols[] = json_decode('{ "label": "Dari Gudang", "name": "from_warehouse_nama"}');
+    $cols[] = json_decode('{ "label": "Actual Qty", "name": "actual_qty", "hidden": true}');
+    $cols[] = json_decode('{ "label": "Qty", "name": "item_qty",
+      "width": 75,
+      "align": "right",
+      "formatter": "integer",
+      "formatoptions": { "thousandsSeparator": "," },
+      "editable": true,
+      "editrules": {
+        "number": true,
+        "minValue": 0,
+        "maxValue": 10000,
+        "required": true
+      }
+    }'
+  );
+    $cols[] = json_decode('{ "label": "Harga Dasar", "name": "basic_rate", "hidden": true}');
+    $cols[] = json_decode('{ "label": "Harga Jual", "name": "item_price",
+      "align": "right",
+      "formatter": "currency",
+      "formatoptions": {
+        "decimalSeparator": ".",
+        "decimalPlaces": "2",
+        "thousandsSeparator": ",",
+        "prefix": "Rp. " },
+        "editable": true,
+        "editrules": {
+          "number": true
+        }
+      }'
+    );
+    $cols[] = json_decode('{ "label": "Total Harga", "name": "item_amount",
+      "align": "right",
+      "formatter": "currency",
+      "formatoptions": {
+        "decimalSeparator": ".",
+        "decimalPlaces": "2",
+        "thousandsSeparator": ",",
+        "prefix": "Rp. " }
+      }'
+    );
     $grid["cols"] = json_encode($cols);
 
     $grid['print_nota'] = APP::urlFor('selling.print_invoice');

@@ -18,12 +18,12 @@ PATCH version when you make backwards-compatible bug fixes.
 - [x][MJR][DB] view stock_balance add item_nama field
 - [x][MNR][DB] add uniq key item_kode
 - [MNR][feature][POS] keyboard fungsi next step inputan key code 13/10 (enter)
-- [MJR][report][POS] laporan penjualan berdasarkan tagihan, range tanggal , no.invoice
+- [MJR][report][POS] laporan penjualan berdasarkan tagihan, range tanggal, no.invoice
 - [MJR][report][MUTASI] mutasi keluar masuk item per harian (by date)
 - [MJR][report][POS] Laporan Penjualan per item dan tanggal
 - [MJR][report][POS] Print per transaksi record
 - [MJR][UX][POS] Browse item barang menggunakan autocomplete (as like on mountdream)
-- [MNR][UX][POS] Editable qty dan harga jual item
+- [x][MJR][UX][POS] Editable qty dan harga jual item
 
 :: Register Pasien
 - tagihan kasir di table klinik_folio detail item penjualan

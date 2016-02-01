@@ -1,14 +1,12 @@
 {% extends 'selling/index.twig' %}
 {% block sub_css %}
-    <link rel="stylesheet" href="{{baseurl}}assets/plugins/jqgrid/css/c-ui.css"/>
+    <link rel="stylesheet" href="{{baseurl}}assets/plugins/bootstrap-table/dist/bootstrap-table.css"/>
     <link rel="stylesheet" href="{{baseurl}}assets/plugins/thickbox/css/thickbox.css"/>
 {% endblock %}
 
 {% block sub_js %}
     <script type="text/javascript" src="{{baseurl}}assets/js/jquery-ui.min.js"></script>
-    <script type="text/javascript" src="{{baseurl}}assets/plugins/keymaster.js"></script>
-    <script type="text/javascript" src="{{baseurl}}assets/plugins/jqgrid/js/i18n/grid.locale-id.js"></script>
-    <script type="text/javascript" src="{{baseurl}}assets/plugins/jqgrid/js/jquery.jqGrid.min.js"></script>
+    <script type="text/javascript" src="{{baseurl}}assets/plugins/bootstrap-table/dist/bootstrap-table.js"></script>
     <script type="text/javascript" src="{{baseurl}}assets/js/plugins/forms/select2.min.js"></script>
     <script type="text/javascript" src="{{baseurl}}assets/plugins/thickbox/js/thickbox.js"></script>
     <script type="text/javascript" src="{{baseurl}}assets/plugins/validate.min.js"></script>
@@ -16,11 +14,9 @@
     <script type="text/javascript" src="{{baseurl}}assets/plugins/accounting.min.js"></script>
     <script type="text/javascript" charset="utf-8">
     validate.validators.presence.options = {message: "Harap data diisi terlebih dahulu"};
-    var tb_pathToImage = "{{baseurl}}assets/plugins/thickbox/img/ico_waiting.gif";
     const ACTION_RECEIPT = 'RECEIPT';
     const ACTION_ISSUE = 'ISSUE';
-    $.jgrid.defaults.responsive = true;
-    $.jgrid.defaults.styleUI = 'Bootstrap';
+    var tb_pathToImage = "{{baseurl}}assets/plugins/thickbox/img/ico_waiting.gif";
     var $gridpos = $('#table-pos');
     var paramsPage = [];
     paramsPage["jenis-tagihan"] = "SWADANA";
@@ -62,16 +58,17 @@
         //w.close();
     }
 
+
     $('#pay-nota').on('click', function() {
         var $form = $('form#form-pos');
-        var dtset = $gridpos.jqGrid('getRowData');
+        var dtset = $gridpos.bootstrapTable("getData");
         var dd = validate.single(dtset, {presence: true});
 
         var errors = validate($form, constraints_parent);
         if (!errors && !dd) {
             var vbayar = $('input[name=bayar]').val().replace(/,/gi, "");
             var total = $('input[name=total]').val().replace(/,/gi, "");
-            if (parseFloat(vbayar) < parseFloat(total)) {
+            if (parseFloat(vbayar) <= parseFloat(total)) {
                 Messenger().post({
                     message: "Total Uang Bayar: " + accounting.formatMoney(vbayar.replace(/,/gi, ''), "Rp ", 2, ".", ",") + " Tidak Mencukupi",
                     type: 'error',
@@ -198,284 +195,282 @@
             item_price: price, item_qty: qty,
             basic_rate: basic,
             actual_qty: actual_qty});
-        // console.log(data);
-        var parameters =
-        {
-            rowID : _id,
-            initdata : data,
-            position :"first",
-            useDefValues : false,
-            useFormatter : false,
-            addRowParams : {extraparam:{}}
-        };
-        $gridpos.jqGrid('addRow', parameters);
-        $gridpos.trigger('reloadGrid');
+        console.log(data);
+        results.push(data);
+        $gridpos.bootstrapTable('append', results);
+        $gridpos.bootstrapTable('scrollTo', 'bottom');
+        $gridpos.bootstrapTable('refresh');
         calcBayar();
     }
     function _handleRemoveRows()
     {
-      var rows = $gridpos.jqGrid('getGridParam', 'selrow');
-      if (rows) {
-        //console.log(rows);
-        $gridpos.jqGrid('delGridRow', rows, {
-          onclickSubmit: function(params) {
-            console.log(params);
-            // delete selected row/rows (multiselect:true)
+        var rows = $gridpos.bootstrapTable('getSelections');
+        if(rows.length > 0) {
+            var data = [];
             _.map(rows, function (row) {
-              $gridpos.delRowData(row);
+                data.push(row['id']);
             });
-            setTimeout(function () {
-              $gridpos.trigger("reloadGrid");
-              calcBayar();
-            }, 50);
-            return true;
-          }
-        });
-        //$gridpos.trigger('reloadGrid');
-      }
-      else {
-        Messenger().post({
-          message: "Tidak ada data yang dipilih.",
-          type: 'error',
-          showCloseButton: true
-        });
-      }
-
+            console.log(data);
+            $gridpos.bootstrapTable('remove', {field: 'id', values: data});
+        }
+        $gridpos.bootstrapTable('uncheckAll');
+        $gridpos.bootstrapTable('refresh');
     }
 
-
     $(function () {
-      key('a', function(){ alert('stopped reload!'); return false });
-      var lastSelection;
-      $gridpos.jqGrid({
-        datatype:'local',
-        editurl: 'clientArray',
-        colModel: {{cols | raw}},
-        viewrecords: true,
-        ondblClickRow: editRow,
-        rownumbers: true,
-        autowidth: true,
-        height: 480,
-        rowNum: 20,
-        rowList : [20,30,50, "10000:semua"],
-        rownumbers: true,
-        rownumWidth: 37,
-        pager: "#jqGridPager"
-      });
-      $gridpos.jqGrid('bindKeys');
+        $gridpos.bootstrapTable({
+            url: '{{source_url}}',
+            method: '{{method}}',
+            columns: {{cols | raw}}
+        });
+        $('input[name=bayar]').priceFormat({prefix:'',thousandsSeparator:',',centsSeparator:'',centsLimit: ''});
+        $('input[name=total]').priceFormat({prefix:'',thousandsSeparator:',',centsSeparator:'',centsLimit: ''});
 
-      function editRow(id) {
-        if (id && id !== lastSelection) {
-          if (typeof lastSelection !== "undefined") {
-            $gridpos.jqGrid('restoreRow',lastSelection);
-          }
-          lastSelection = id;
-        }
-        var lastRow = $gridpos.jqGrid('getRowData', id);
-        $gridpos.jqGrid('editRow', id, {
-          keys: true,
-          aftersavefunc: function(id) {
-            var row = $gridpos.jqGrid('getRowData', id);
-            row.item_amount = parseInt(row["item_qty"])*parseInt(row["item_price"]);
-            if(parseInt(row.actual_qty) >= parseInt(row.item_qty) ) {
-              $gridpos.jqGrid('setRowData', id, row);
+        /*
+         * var dtset = $griddetail.bootstrapTable("getData");
+         * var dd = validate.single(dtset, {presence: true});
+         * var errors = validate($(this), constraints);
+         * */
+        /*$(document).on('submit', 'form#form-pos', function(e) {
+            e.preventDefault();
+            var dtset = $gridpos.bootstrapTable("getData");
+            var dd = validate.single(dtset, {presence: true});
+            var errors = validate($(this), constraints_parent);
+
+            if(!errors && !dd){
+                var input = $("<input>")
+                                .attr("type", "hidden")
+                                .attr("name", "rows").val(JSON.stringify(dtset)),
+                        chasier = $("<input>")
+                                .attr("type", "hidden")
+                                .attr("name", "kasir").val(""),
+                        invoice = $("<input>")
+                                .attr("type", "hidden")
+                                .attr("name", "kode_invoice").val(paramsPage["kode-tagihan"]);
+                $(this).append($(chasier));
+                $(this).append($(input));
+                $(this).append($(invoice));
+
+                var formArray = $(this).serializeArray();
+                var result = {};
+                _.map(formArray, function (k, v) {
+                    var name = k['name'],
+                            objs = {};
+                    objs[name] = k['value'];
+                    _.assign(result, objs);
+                });
+                $.ajax({
+                    url: "",
+                    method: "POST",
+                    dataType: "json",
+                    data: result,
+                    success: function (data) {
+                        console.log(data);
+                        bootbox.confirm("Print Nota?", function(action) {
+                            if (action) {
+                                var tagihan = $("<input>")
+                                        .attr("type", "hidden")
+                                        .attr("name", "tagihan").val(data.kode_invoice);
+                                $(this).append($(tagihan));
+                                window.open(""+"/"+data.kode_invoice);
+                                return true;
+                            }
+                        });
+                    },
+                    complete: function() {
+
+                    }
+                });
+                console.log(result);
             } else {
-              $gridpos.jqGrid('setRowData', id, lastRow);
-              Messenger().post({
-                message: "Stok yang tersedia : "+row.actual_qty,
-                type: 'error',
-                showCloseButton: true
-              });
-            };
-            calcBayar();
-          }
-        }
-      );
-      }
-
-      $('input[name=bayar]').priceFormat({prefix:'',thousandsSeparator:',',centsSeparator:'',centsLimit: ''});
-      $('input[name=total]').priceFormat({prefix:'',thousandsSeparator:',',centsSeparator:'',centsLimit: ''});
-
-      $("input[name=cari_pasien]").select2({
-        allowClear: true,
-        minimumResultsForSearch: Infinity,
-        width: "100%",
-        minimumInputLength: 0,
-        placeholder: "Cari nama atau No.Reg Pasien",
-        id: function (bond) {
-          return bond.cust_usr_kode;
-        },
-        ajax: {
-          url: '{{url_pasien}}',
-          dataType: 'json',
-          quietMillis: 100,
-          data: function (term, page) {
-            return { search: term, offset: (page - 1) * 20, limit: 20 };
-          },
-          results: function (data, page) {
-            var more = (page * 20) < data.total;
-            return {results: data.rows, more: more};
-          }
-        },
-        initSelection: function(element, callback) {
-          var id = $(element).val();
-          if (id !== "") {
-            $.ajax("{{url_pasien}}", {
-              dataType: "json",
-              data: { search: id, offset: 0, limit: 1 }
-            }).done(function(data) { callback(data.rows[0]); });
-          }
-        },
-        escapeMarkup: function (markup) {
-          return markup;
-        },
-        formatSelection: function (repo) {
-          return repo.cust_usr_nama;
-        },
-        formatResult: function (repo) {
-          var markup = '<div class="row">' +
-          '<div class="col-sm-12">' + repo.cust_usr_nama + '</div>' +
-          '<ul style="font-size: 8px;">' +
-          '<li class="col-sm-12">'+ repo.cust_usr_kode +'</li>' +
-          '<li class="col-sm-12">'+ repo.cust_usr_alamat +'</li>'
-          '</ul>';
-
-          markup += '</div>';
-          return markup;
-        }
-      });
-      $("input[name=cari_pasien]").on("change", function(e) {
-        var data = e.added;
-        var dataset = {};
-        dataset["nama"] = data.cust_usr_nama;
-        dataset["alamat"] = data.cust_usr_alamat;
-        dataset["regno"] = data.cust_usr_kode;
-        dataset["jpasien"] = data.reg_jenis_pasien;
-        dataPasien(dataset);
-      });
-      $("input[name=price_list]").select2({
-        width: "100%",
-        minimumInputLength: 0,
-        placeholder: "Cari Daftar Harga",
-        id: function (bond) {
-          return bond.price_list_nama;
-        },
-        ajax: {
-          url: '{{url_price_list}}',
-          dataType: 'json',
-          quietMillis: 100,
-          data: function (term, page) {
-            return { aktif: 'TRUE', sort:'price_list_nama', order: 'asc', search: term,
-            page: page, rows: 15 };
-          },
-          results: function (data, page) {
-            var more = (page * 15) < data.total;
-            return {results: data.rows, more: more};
-          }
-        },
-        initSelection: function(element, callback) {
-          var id = $(element).val();
-          if (id !== "") {
-            $.ajax("{{url_price_list}}", {
-              dataType: "json",
-              data: { search: id, page: 1, rows: 1 }
-            }).done(function(data) {
-              $("#invoice_no").html("SINV-" + data.rows[0].kode_invoice);
-              paramsPage["jenis-tagihan"] = data.rows[0].price_list_nama;
-              callback(data.rows[0]);
-            });
-          }
-        },
-        escapeMarkup: function (markup) {
-          return markup;
-        },
-        formatSelection: function (repo) {
-          return repo.price_list_nama;
-        },
-        formatResult: function (repo) {
-          return repo.price_list_nama;
-        }
-      });
-      $("input[name=price_list]").on("change", function(e) {
-        var data = e.added;
-        $("#invoice_no").html("SINV-" + data.kode_invoice);
-        paramsPage["jenis-tagihan"] = data.price_list_nama;
-        paramsPage["kode-tagihan"] = data.kode_invoice;
-      });
-      $("input[name=dokter1]").select2({
-        width: "100%",
-        minimumInputLength: 0,
-        placeholder: "Cari Daftar Harga",
-        id: function (bond) {
-          return bond.pgw_id;
-        },
-        ajax: {
-          url: '{{url_dokter}}',
-          dataType: 'json',
-          quietMillis: 100,
-          data: function (term, page) {
-            return { search: term, offset: (page - 1) * 15, limit: 15 };
-          },
-          results: function (data, page) {
-            var more = (page * 15) < data.total;
-            return {results: data.rows, more: more};
-          }
-        },
-        initSelection: function(element, callback) {
-          var id = $(element).val();
-          if (id !== "") {
-            $.ajax("{{url_dokter}}", {
-              dataType: "json",
-              data: { search: id, offset: 0, limit: 1 }
-            }).done(function(data) { callback(data.rows[0]); });
-          }
-        },
-        escapeMarkup: function (markup) {
-          return markup;
-        },
-        formatSelection: function (repo) {
-          return repo.pgw_nama;
-        },
-        formatResult: function (repo) {
-          return repo.pgw_nama;
-        }
-      });
-      $('input[name=bayar]').on("keyup", function(){
-        $('input[name=bayar_total]').val($(this).val().replace(/,/gi, ''));
-        calc();
-      });
-      {# $('#form_item').on('show.bs.modal', function(){
-        $(this).find('.modal-content').load($('#item-add').data("href"));
-      }); #}
-      $('#form_payment').on('show.bs.modal', function(){
-        $('input[name=bayar]').focus();
-        $('input[name=total-calc]').val(accounting.formatMoney($('input[name=total]').val().replace(/,/gi, ''), "Rp ", 2, ".", ","));
-      });
-      var dok = $("input[name=dokter]").autocomplete({
-        query: '',
-        minLength: 0,
-        delay: 0,
-        autoFocus: false,
-        source: function(request, response) {
-          var that = this;
-          $.ajax({
-            url: '{{url_dokter}}',
-            dataType: 'json',
-            quietMillis: 100,
-            data: { search: request.term, offset: (1 - 1) * 15, limit: 15 },
-            success: function (data) {
-              var items = [];
-              $.each(data.rows, function (i, item) {
-                item = {
-                  label: item.pgw_nama || '',
-                  value: item.pgw_nama || ''
-                };
-                items.push(item);
-              });
-              response(items);
+                Messenger().post({
+                    message: "Data harap diisi terlebih dahulu",
+                    type: 'error',
+                    showCloseButton: true
+                });
+                e.preventDefault();
             }
-          });
-        }
+        });*/
+        $("input[name=cari_pasien]").select2({
+            allowClear: true,
+            minimumResultsForSearch: Infinity,
+            width: "100%",
+            minimumInputLength: 0,
+            placeholder: "Cari nama atau No.Reg Pasien",
+            id: function (bond) {
+                return bond.cust_usr_kode;
+            },
+            ajax: {
+                url: '{{url_pasien}}',
+                dataType: 'json',
+                quietMillis: 100,
+                data: function (term, page) {
+                    return { search: term, offset: (page - 1) * 20, limit: 20 };
+                },
+                results: function (data, page) {
+                    var more = (page * 20) < data.total;
+                    return {results: data.rows, more: more};
+                }
+            },
+            initSelection: function(element, callback) {
+                var id = $(element).val();
+                if (id !== "") {
+                    $.ajax("{{url_pasien}}", {
+                        dataType: "json",
+                        data: { search: id, offset: 0, limit: 1 }
+                    }).done(function(data) { callback(data.rows[0]); });
+                }
+            },
+            escapeMarkup: function (markup) {
+                return markup;
+            },
+            formatSelection: function (repo) {
+                return repo.cust_usr_nama;
+            },
+            formatResult: function (repo) {
+                var markup = '<div class="row">' +
+                        '<div class="col-sm-12">' + repo.cust_usr_nama + '</div>' +
+                        '<ul style="font-size: 8px;">' +
+                        '<li class="col-sm-12">'+ repo.cust_usr_kode +'</li>' +
+                        '<li class="col-sm-12">'+ repo.cust_usr_alamat +'</li>'
+                '</ul>';
+
+                markup += '</div>';
+                return markup;
+            }
+        });
+        $("input[name=cari_pasien]").on("change", function(e) {
+            var data = e.added;
+            var dataset = {};
+            dataset["nama"] = data.cust_usr_nama;
+            dataset["alamat"] = data.cust_usr_alamat;
+            dataset["regno"] = data.cust_usr_kode;
+            dataset["jpasien"] = data.reg_jenis_pasien;
+            dataPasien(dataset);
+        });
+        $("input[name=price_list]").select2({
+            width: "100%",
+            minimumInputLength: 0,
+            placeholder: "Cari Daftar Harga",
+            id: function (bond) {
+                return bond.price_list_nama;
+            },
+            ajax: {
+                url: '{{url_price_list}}',
+                dataType: 'json',
+                quietMillis: 100,
+                data: function (term, page) {
+                    return { aktif: 'TRUE', sort:'price_list_nama', order: 'asc', search: term,
+                    page: page, rows: 15 };
+                },
+                results: function (data, page) {
+                    var more = (page * 15) < data.total;
+                    return {results: data.rows, more: more};
+                }
+            },
+            initSelection: function(element, callback) {
+                var id = $(element).val();
+                if (id !== "") {
+                    $.ajax("{{url_price_list}}", {
+                        dataType: "json",
+                        data: { search: id, page: 1, rows: 1 }
+                    }).done(function(data) {
+                        $("#invoice_no").html("SINV-" + data.rows[0].kode_invoice);
+                        paramsPage["jenis-tagihan"] = data.rows[0].price_list_nama;
+                        callback(data.rows[0]);
+                    });
+                }
+            },
+            escapeMarkup: function (markup) {
+                return markup;
+            },
+            formatSelection: function (repo) {
+                return repo.price_list_nama;
+            },
+            formatResult: function (repo) {
+                return repo.price_list_nama;
+            }
+        });
+        $("input[name=price_list]").on("change", function(e) {
+            var data = e.added;
+            $("#invoice_no").html("SINV-" + data.kode_invoice);
+            paramsPage["jenis-tagihan"] = data.price_list_nama;
+            paramsPage["kode-tagihan"] = data.kode_invoice;
+        });
+        $("input[name=dokter1]").select2({
+            width: "100%",
+            minimumInputLength: 0,
+            placeholder: "Cari Daftar Harga",
+            id: function (bond) {
+                return bond.pgw_id;
+            },
+            ajax: {
+                url: '{{url_dokter}}',
+                dataType: 'json',
+                quietMillis: 100,
+                data: function (term, page) {
+                    return { search: term, offset: (page - 1) * 15, limit: 15 };
+                },
+                results: function (data, page) {
+                    var more = (page * 15) < data.total;
+                    return {results: data.rows, more: more};
+                }
+            },
+            initSelection: function(element, callback) {
+                var id = $(element).val();
+                if (id !== "") {
+                    $.ajax("{{url_dokter}}", {
+                        dataType: "json",
+                        data: { search: id, offset: 0, limit: 1 }
+                    }).done(function(data) { callback(data.rows[0]); });
+                }
+            },
+            escapeMarkup: function (markup) {
+                return markup;
+            },
+            formatSelection: function (repo) {
+                return repo.pgw_nama;
+            },
+            formatResult: function (repo) {
+                return repo.pgw_nama;
+            }
+        });
+        $('input[name=bayar]').on("keyup", function(){
+            $('input[name=bayar_total]').val($(this).val().replace(/,/gi, ''));
+            calc();
+        });
+        {# $('#form_item').on('show.bs.modal', function(){
+            $(this).find('.modal-content').load($('#item-add').data("href"));
+        }); #}
+        $('#form_payment').on('show.bs.modal', function(){
+            $('input[name=bayar]').focus();
+            $('input[name=total-calc]').val(accounting.formatMoney($('input[name=total]').val().replace(/,/gi, ''), "Rp ", 2, ".", ","));
+        });
+        var dok = $("input[name=dokter]").autocomplete({
+          query: '',
+          minLength: 0,
+          delay: 0,
+          autoFocus: false,
+          source: function(request, response) {
+            var that = this;
+            $.ajax({
+                url: '{{url_dokter}}',
+                dataType: 'json',
+                quietMillis: 100,
+                data: { search: request.term, offset: (1 - 1) * 15, limit: 15 },
+                success: function (data) {
+                  var items = [];
+                  $.each(data.rows, function (i, item) {
+                      item = {
+                          label: item.pgw_nama || '',
+                          value: item.pgw_nama || ''
+                      };
+                      items.push(item);
+                  });
+                  response(items);
+                }
+              });
+          }
       });
       dok.bind("click", function() {$(this).autocomplete('search', "");});
     });
@@ -505,8 +500,8 @@
     }
     function calcBayar(){
         var total = 0;
-        var rows = $gridpos.jqGrid('getRowData');
-        console.log(rows);
+        var rows = $gridpos.bootstrapTable('getData');
+        console.log("wolezzzzs");
         if(rows.length > 0) {
             _.map(rows, function (row) {
                 total +=parseInt(row['item_amount']);
@@ -660,10 +655,19 @@
             </div>
           </div>
 
-          <div style="margin-top: 23px;">
-            <table id="table-pos"></table>
-            <div id="jqGridPager"></div>
-          </div>
+        <div class="datatable">
+            <table id="table-pos"
+                   data-toolbar="#post"
+                   data-buttons-align="left"
+                   data-toolbar-align="right"
+                   data-pagination="true"
+                   data-side-pagination="server"
+                   data-page-list="[5, 10, 20, 50, 100, 200]"
+                   data-click-to-select="true"
+                   data-single-select="true"
+                   data-height="480">
+            </table>
+        </div>
     </div>
     <!-- Form modal -->
     <div id="form_payment" class="modal fade" tabindex="-1" role="dialog">
@@ -715,6 +719,13 @@
 
                 </form>
             </div>
+        </div>
+    </div>
+    <!-- /form modal -->
+    <!-- Form modal -->
+    <div id="form_item" class="modal fade" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content modal-body with-padding"></div>
         </div>
     </div>
     <!-- /form modal -->
