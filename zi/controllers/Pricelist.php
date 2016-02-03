@@ -60,11 +60,10 @@ class Pricelist_Controller extends Zi\Lock_c
       $search = ZiUtil::is_set('search', $params);
       $query = "id = '" . $search . "'";
     } else {
-
+      $params = $req->get();
+      $search = ZiUtil::is_set('search', $params);
+      $query = "price_list_nama ILIKE '%" . $search . "%'";
     }
-    $params = $req->get();
-    $search = ZiUtil::is_set('search', $params);
-    $query = "price_list_nama ILIKE '%" . $search . "%'";
     $results = ZiUtil::search_result_jq_DB($query, $params, 'PriceList');
     return ZiUtil::dataset_json($results['query'], $results['total']);
   }

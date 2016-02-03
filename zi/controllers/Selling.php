@@ -133,7 +133,8 @@ class Selling_Controller extends \Zi\Lock_c
         "decimalSeparator": ".",
         "decimalPlaces": "2",
         "thousandsSeparator": ",",
-        "prefix": "Rp. " }
+        "prefix": "Rp. "
+      }
       }'
     );
     $grid["cols"] = json_encode($cols);
@@ -142,9 +143,12 @@ class Selling_Controller extends \Zi\Lock_c
     $grid['url_index'] = APP::urlFor('selling.pos');
     $grid['url_submit'] = APP::urlFor('selling.s003');
     $grid['url_submit_status'] = APP::urlFor('selling.submit_status');
+    $grid['url_item'] = APP::urlFor('item.dataset');
+    $grid['url_stok_balance'] = APP::urlFor('stok.balance');
     $grid['url_pasien'] = APP::urlFor('pasien.reg_pasien');
     $grid['url_dokter'] = APP::urlFor('selling.dokter');
     $grid['url_price_list'] = APP::urlFor('pricelist.dataset');
+    $grid["url_price_sell"] = App::urlFor("selling.pricelist");
     $grid['modal_form'] = APP::urlFor('selling.positem');
     $grid['gridtitle'] = "Daftar pembelian item";
     APP::render('selling/pos', $grid);
@@ -161,7 +165,7 @@ class Selling_Controller extends \Zi\Lock_c
 
         // Generate Kode Sales Invoice (SINV-030-20151204-xxxxx)
         $kode_invoice = $post["kode_invoice"];
-        $find_invoice = sprintf("SINV-%s-%d-", $kode_invoice, ZiUtil::GetDateNow());
+        $find_invoice = sprintf("SINV-%s-%s-", $kode_invoice, ZiUtil::GetDateNow());
     		$query = sprintf("id ILIKE '%s%s'", $find_invoice, '%');
     		//var_dump($query);
     		$condition = array('conditions' => $query, 'limit' => 1, 'offset' => 0, 'order' => 'id DESC');
@@ -170,7 +174,7 @@ class Selling_Controller extends \Zi\Lock_c
     		if(is_null($last_kode_inv)) {
     			$last_kode_inv = "00000";
     		}
-    		$SaleKodeGen = sprintf("SINV-%s-%d-%s",
+    		$SaleKodeGen = sprintf("SINV-%s-%s-%s",
     		$kode_invoice, ZiUtil::GetDateNow(),
     		str_pad(((int)$last_kode_inv)+1, 5, "0", STR_PAD_LEFT));
     		//var_dump($SaleKodeGen);
@@ -221,8 +225,8 @@ class Selling_Controller extends \Zi\Lock_c
             $stockLedger->insert_db(
               $row["item_kode"],
               $SaleKodeGen,
-              "Sales Apotik",
               $voucher_detail_no,
+              "Sales Apotik",
               (0 - ZiUtil::check_int($row["item_qty"])),
               $row["from_warehouse"],
               $qty_after_trans,

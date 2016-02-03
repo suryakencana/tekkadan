@@ -146,8 +146,7 @@ class ZiUtil
 
 	public static function GetDateNow()
 	{
-		$date = getdate();
-		$u =  $date["mday"].$date["mon"].$date["year"];
-		return($u);
+		$date = date("dmY");
+		return($date);
 	}
 }

@@ -15,12 +15,20 @@
     <script type="text/javascript" src="{{baseurl}}assets/plugins/price.js"></script>
     <script type="text/javascript" src="{{baseurl}}assets/plugins/accounting.min.js"></script>
     <script type="text/javascript" charset="utf-8">
+    key.filter = function(event){
+      var tagName = (event.target || event.srcElement).tagName;
+      key.setScope(/^(INPUT|TEXTAREA|SELECT)$/.test(tagName) ? 'input' : 'other');
+      return true;
+    }
     validate.validators.presence.options = {message: "Harap data diisi terlebih dahulu"};
     var tb_pathToImage = "{{baseurl}}assets/plugins/thickbox/img/ico_waiting.gif";
     const ACTION_RECEIPT = 'RECEIPT';
     const ACTION_ISSUE = 'ISSUE';
+    const warehouse_pos = "7c87a8d69bc21df012ae8e3b17c5fff7";
     $.jgrid.defaults.responsive = true;
     $.jgrid.defaults.styleUI = 'Bootstrap';
+    var $manual_rate = $("input[name=manual_jual]");
+    var $manual_qty = $("input[name=manual_qty]");
     var $gridpos = $('#table-pos');
     var paramsPage = [];
     paramsPage["jenis-tagihan"] = "SWADANA";
@@ -48,20 +56,68 @@
     reg_status_pasien.push("BPJS ASTEK"); //13
     reg_status_pasien.push("BPJS Jamkesmas"); //14
     reg_status_pasien.push("Lain - Lain"); //15
-    $("#form_payment, input[name=bayar]").on('keydown', function (e) {
-        switch(e.which) {
-            case 116:
-                // F5
-                $('#pay-nota').trigger("click");
-                e.preventDefault();
-        }
-    });
     function printpos(kode){
         var w = window.open("{{ print_nota }}"+"/"+kode);
         w.print();
         //w.close();
     }
 
+    function cekStok_pos(itemKode, warehouse, uom)
+    {
+      if(warehouse && itemKode) {
+        $.get("{{ url_stok_balance }}", {item_kode: itemKode, warehouse: warehouse})
+        .done(function (data) {
+          var actual_qty = data.rows.length > 0 ? round(data.rows[0].balance, 0) : 0;
+          $('#manual_actual_qty').html("Total Stok Aktual: "+actual_qty +" "+ uom);
+          $('input[name=manual_qty]').val("0");
+          $('input[name=manual_uom]').val(uom);
+          $('input[name=manual_actual_qty]').val(actual_qty);
+        });
+      }
+    }
+
+    function cekPricelist_pos(id, pricelist)
+    {
+      if(id) {
+        $.get("{{url_price_sell}}", { item_kode: id, price_list: pricelist})
+        .done(function (data) {
+          var basic_rate = data.rows.length > 0 ? round(data.rows[0].price_list_rate, 0) : 0;
+          $('input[name=manual_jual]').val(basic_rate);
+          $('input[name=manual_qty]').focus();
+        });
+      }
+    }
+
+    $("#form_payment, input[name=bayar]").on('keydown', function (e) {
+        switch(e.which) {
+            case 116:
+                // F5
+                $('#pay-nota').trigger("click");
+                e.preventDefault();
+                return;
+        }
+    });
+    $("input[name=manual_qty], input[name=manual_jual]").on('keydown', function (e) {
+        switch(e.which) {
+            case 118:
+                // F7
+                console.log('enter enter insert data');
+                insert_manual();
+                e.preventDefault();
+                return;
+        }
+    });
+    key('enter', function(e, handler){
+      var el = $(e.target);
+      $(':input:eq(' + ($(':input').index(el) + 1) + ')').focus();
+      console.log($(':input:eq(' + ($(':input').index(el) + 1) + ')'));
+      // var nextInput = input.get(input.index(this) + 1);
+      // if (nextInput) {
+      //   nextInput.focus();
+      // }
+      console.log('sssss');
+      return true;
+    });
     $('#pay-nota').on('click', function() {
         var $form = $('form#form-pos');
         var dtset = $gridpos.jqGrid('getRowData');
@@ -173,6 +229,12 @@
                 $('input[name=bayar]').trigger("click");
                 e.preventDefault();
                 return;
+            case 117:
+                // F6
+                $("input[name=manual_item_kode]").select2("open");
+                $("input[name=manual_item_kode]").focus();
+                e.preventDefault();
+                return;
 
         }
         if (e.shiftKey && e.which == 80) {
@@ -185,6 +247,37 @@
             e.preventDefault();
         }
     });
+    function insert_manual()
+    {
+      var objs = {};
+      objs["item_kode"] = $("input[name=manual_item_kode]").val();
+      objs["item_nama"] = $("input[name=manual_item_nama]").val();
+      objs["item_uom"] = $("input[name=manual_uom]").val();
+      objs["item_price"] = $("input[name=manual_jual]").val();
+      objs["from_warehouse"] = warehouse_pos;
+      objs["actual_qty"] = $("input[name=manual_actual_qty]").val();
+      objs["item_qty"] = $("input[name=manual_qty]").val();
+      objs["basic_rate"] = $("input[name=manual_jual]").val();
+
+      if(parseInt(objs["item_qty"]) <= 0) {
+          Messenger().post({
+              message: "Jumlah Item Harus diisi",
+              type: 'error',
+              showCloseButton: true
+          });
+          return;
+      }
+
+      if (parseInt(objs["item_qty"]) > parseInt(objs["actual_qty"])) {
+        Messenger().post({
+          message: "Jumlah Stok Item tidak mencukupi",
+          type: 'error',
+          showCloseButton: true
+        });
+        return;
+      }
+      insertData(objs);
+    }
     function insertData(data)
     {
         var results = [],
@@ -245,7 +338,8 @@
 
 
     $(function () {
-      key('a', function(){ alert('stopped reload!'); return false });
+      $manual_rate.priceFormat({prefix:'',thousandsSeparator:',',centsSeparator:'',centsLimit: ''});
+      $manual_qty.priceFormat({prefix:'',thousandsSeparator:',',centsSeparator:'',centsLimit: ''});
       var lastSelection;
       $gridpos.jqGrid({
         datatype:'local',
@@ -253,6 +347,7 @@
         colModel: {{cols | raw}},
         viewrecords: true,
         ondblClickRow: editRow,
+        multiselect: true,
         rownumbers: true,
         autowidth: true,
         height: 480,
@@ -296,6 +391,62 @@
       $('input[name=bayar]').priceFormat({prefix:'',thousandsSeparator:',',centsSeparator:'',centsLimit: ''});
       $('input[name=total]').priceFormat({prefix:'',thousandsSeparator:',',centsSeparator:'',centsLimit: ''});
 
+      $("input[name=manual_item_kode]").select2({
+          allowClear: true,
+          width: "100%",
+          minimumInputLength: 0,
+          placeholder: "Cari Item",
+          id: function (bond) {
+              return bond.item_kode;
+          },
+          ajax: {
+              url: '{{url_item}}',
+              dataType: 'json',
+              quietMillis: 100,
+              data: function (term, page) {
+                  return { search: term, page: page, rows: 15 };
+              },
+              results: function (data, page) {
+                  var more = (page * 15) < data.total;
+                  return {results: data.rows, more: more};
+              }
+          },
+          initSelection: function(element, callback) {
+              var id = $(element).val();
+              if (id !== "") {
+                  $.ajax("{{url_item}}", {
+                      dataType: "json",
+                      data: { search: id, page: 1, rows: 1 }
+                  }).done(function(data) { callback(data.rows[0]); });
+              }
+          },
+          escapeMarkup: function (markup) {
+              return markup;
+          },
+          formatSelection: function (repo) {
+              return repo.item_kode;
+          },
+          formatResult: function (repo) {
+              var markup = '<div class="row">' +
+                      '<div class="col-sm-12">' + repo.item_nama + '</div>' +
+                      '<ul style="font-size: 8px;">' +
+                      '<li class="col-sm-12">'+ repo.item_kode +'</li>' +
+                      '<li class="col-sm-12">'+ repo.item_uom +'</li>' +
+                      '<li class="col-sm-12">'+ repo.item_principal +'</li>' +
+                      '<li class="col-sm-12">'+ repo.item_grup+'</li>' +
+                      '</ul>';
+
+              markup += '</div>';
+
+              return markup;
+          }
+      });
+      $("input[name=manual_item_kode]").on("change", function(e) {
+          var data = e.added;
+          $("input[name=manual_item_nama]").val(data.item_nama);
+          cekStok_pos(data.item_kode, warehouse_pos, data.item_uom);
+          cekPricelist_pos(data.item_kode, paramsPage["jenis-tagihan"]);
+      });
       $("input[name=cari_pasien]").select2({
         allowClear: true,
         minimumResultsForSearch: Infinity,
@@ -638,22 +789,24 @@
           <div class="form-group">
             <div class="row">
               <div class="col-sm-3">
-                <label>Kode Item:</label>
-                <input type="text" placeholder="Cari Kode item" class="form-control"
-                name="manual_item_kode" />
+                <label>Kode Item[F6]:</label>
+                <input type="text" placeholder="Cari Kode item" name="manual_item_kode" />
               </div>
               <div class="col-sm-3">
                 <label>Nama Item:</label>
                 <input type="text" placeholder="Cari Nama item" class="form-control"
-                name="manual_item_nama" />
+                name="manual_item_nama" readonly/>
               </div>
               <div class="col-sm-3">
-                <label>Jumlah Item (Qty):</label>
+                <label>Jumlah Item (Qty)[F7]:</label>
                 <input type="text" placeholder="Qty Item" class="form-control"
                 name="manual_qty" style="text-align: right;"/>
+                <input type="hidden" name="manual_uom" />
+                <input type="hidden" name="manual_actual_qty" />
+                <span id="manual_actual_qty" class="help-block">Total Stok Aktual:</span>
               </div>
               <div class="col-sm-3">
-                <label>Harga Jual:</label>
+                <label>Harga Jual[F7]:</label>
                 <input type="text" placeholder="Harga Jual Item" class="form-control"
                 name="manual_jual" style="text-align: right;"/>
               </div>

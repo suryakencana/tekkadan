@@ -113,7 +113,11 @@ class ZiStockQueue {
       $amount += $row->qty * $row->incoming_rate;
       $amount_qty += ZiUtil::check_int($row->qty);
     }
-    $valuation_rate = $amount / $amount_qty;
-    return $valuation_rate > 0 ? $valuation_rate : 0 ;
+
+    if($amount > 0 && $amount_qty > 0) {
+      $valuation_rate = $amount / $amount_qty;
+      return $valuation_rate > 0 ? $valuation_rate : 0 ;
+    }
+    return 0;
   }
 }
