@@ -1,0 +1,88 @@
+body {
+  background-color: #efefef;
+}
+
+/* Container Responsive Behaviour */
+@media print {
+  * { background: transparent !important; color: black !important; text-shadow: none !important; filter:none !important; -ms-filter: none !important; } /* Black prints faster: h5bp.com/s */
+  a, a:visited { text-decoration: underline; }
+  a[href]:after { content: " (" attr(href) ")"; }
+  abbr[title]:after { content: " (" attr(title) ")"; }
+  .ir a:after, a[href^="javascript:"]:after, a[href^="#"]:after { content: ""; }  /* Don't show links for images, or javascript/internal links */
+  pre, blockquote { border: 1px solid #999; page-break-inside: avoid; }
+  thead { display: table-header-group; } /* h5bp.com/t */
+  tr, img { page-break-inside: avoid; }
+  img { max-width: 100% !important; }
+  @page { margin: 0.5cm; }
+  p, h2, h3 { orphans: 3; widows: 3; }
+  h2, h3 { page-break-after: avoid; }
+}
+
+.invoice-container {
+  margin: 15px auto;
+  padding: 25px 30px;
+  max-width: 850px;
+  background-color: #fff;
+  -moz-border-radius: 0px;
+  -webkit-border-radius: 0px;
+  -o-border-radius: 0px;
+  border-radius: 0px;
+}
+
+/* Invoice Status Formatting */
+
+.invoice-container .invoice-status {
+  margin: 20px 0 0 0;
+  text-transform: uppercase;
+  font-size: 24px;
+  font-weight: bold;
+}
+
+/* Invoice Status Colors */
+
+.draft {
+  color: #888;
+}
+.unpaid {
+  color: #cc0000;
+}
+.paid {
+  color: #779500;
+}
+.refunded {
+  color: #224488;
+}
+.cancelled {
+  color: #888;
+}
+.collections {
+  color: #ffcc00;
+}
+
+/* Payment Button Formatting */
+
+.invoice-container .payment-btn-container {
+  margin-top: 5px;
+  text-align: center;
+}
+.invoice-container .payment-btn-container table {
+  margin: 0 auto;
+}
+
+/* Text Formatting */
+
+.invoice-container .small-text {
+  font-size: 0.9em;
+}
+
+/* Invoice Items Table Formatting */
+.invoice-container table {
+  width: 100%;
+  font-size: 8pt;
+}
+.invoice-container td.total-row {
+  background-color: #f8f8f8;
+}
+.invoice-container td.no-line {
+  border: 0;
+}

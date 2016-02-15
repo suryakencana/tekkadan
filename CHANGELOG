@@ -17,12 +17,12 @@ PATCH version when you make backwards-compatible bug fixes.
 - [x][MJR][SYSTEM] ganti tabel ui jqgrid
 - [x][MJR][DB] view stock_balance add item_nama field
 - [x][MNR][DB] add uniq key item_kode
-- [MNR][feature][POS] keyboard fungsi next step inputan key code 13/10 (enter)
+- [x][MNR][feature][POS] keyboard fungsi next step inputan key code 13/10 (enter|tab)
 - [MJR][report][POS] laporan penjualan berdasarkan tagihan, range tanggal, no.invoice
 - [MJR][report][MUTASI] mutasi keluar masuk item per harian (by date)
 - [MJR][report][POS] Laporan Penjualan per item dan tanggal
 - [MJR][report][POS] Print per transaksi record
-- [MJR][UX][POS] Browse item barang menggunakan autocomplete (as like on mountdream)
+- [x][MJR][UX][POS] Browse item barang menggunakan autocomplete (as like on mountdream)
 - [x][MJR][UX][POS] Editable qty dan harga jual item
 
 :: Register Pasien
@@ -32,3 +32,11 @@ PATCH version when you make backwards-compatible bug fixes.
  -> id_biaya inputan kode item
  -> fol_jenis default apotik T
  -> fol_jumlah inputan qty item
+
+- untuk setelah pembayaran pos, pasien registrasi tidak perlu
+di ganti status selesai di klinik_registrasi, status
+diganti jika pasien sudah melakukan pembayaran dikasir
+
+ ::rechanged
+ - table tx_penjualan_apotik
+  . tambah field is_canceled integer 0

@@ -1,0 +1,61 @@
+{% extends 'component/jqgrid_view.twig' %}
+{% block subjs %}
+<script type="text/javascript" src="{{baseurl}}assets/js/jquery-ui.min.js"></script>
+<script type="text/javascript" src="{{baseurl}}assets/js/plugins/interface/moment.js"></script>
+<script type="text/javascript" charset="utf-8">
+const TOOLBAR_SEARCH = 'TOOLBAR_SEARCH';
+const TOOLBAR_EXPORT = 'TOOLBAR_EXPORT';
+const TOOLBAR_PRINT = 'TOOLBAR_PRINT';
+var a_date = $('input[name=date_awal]');
+var z_date = $('input[name=date_akhir]');
+function action_toolbar(type)
+{
+  if(moment(a_date.val()) <= moment(z_date.val())){
+    switch (type) {
+      case TOOLBAR_SEARCH:
+      $grid.jqGrid('setGridParam', {url: '{{ source_url }}?a='+ a_date.val() + '&z=' + z_date.val() + '&cdate=posting_date', datatype: 'json'});
+      $grid.trigger("reloadGrid");
+      return;
+      case TOOLBAR_EXPORT:
+      window.open("{{ url_print }}/export?a=" + a_date.val() + '&z=' + z_date.val() + '&cdate=posting_date');
+      console.log('TOOLBAR_EXPORT');
+      return;
+      case TOOLBAR_PRINT:
+      window.open("{{ url_print }}/harian?a=" + a_date.val() + '&z=' + z_date.val() + '&cdate=posting_date');
+      console.log('TOOLBAR_PRINT');
+      return;
+    }
+  } else {
+    Messenger().post({
+      message: 'Pilih tanggal yang benar',
+      type: 'info',
+      showCloseButton: true
+    });
+  }
+}
+$(function () {
+$(".datepicker").datepicker({
+    defaultDate: "now",
+    dateFormat: "yy-mm-dd",
+    showOtherMonths: true
+});
+});
+</script>
+{% endblock %}
+{% block toolbar %}
+<div class="row" style="margin-top: 10px;">
+  <div class="col-sm-12 col-md-3">
+    <input type="text" class="datepicker form-control" placeholder="Tanggal awal"
+    name="date_awal" />
+  </div>
+  <div class="col-sm-12 col-md-3">
+    <input type="text" class="datepicker form-control" placeholder="Tanggal akhir"
+    name="date_akhir" />
+  </div>
+  <div class="col-sm-12 col-md-3">
+    <button onclick="action_toolbar('TOOLBAR_SEARCH');" class="btn btn-link btn-icon btn-xs tip" title="" data-original-title="Search"><i class="icon-search2"></i></button>
+    <button onclick="action_toolbar('TOOLBAR_PRINT');" class="btn btn-link btn-icon btn-xs tip" title="" data-original-title="Print"><i class="icon-print2"></i></a>
+    <button onclick="action_toolbar('TOOLBAR_EXPORT');" class="btn btn-link btn-icon btn-xs tip" title="" data-original-title="Export"><i class="icon-file-excel"></i></a>
+  </div>
+</div>
+{% endblock %}

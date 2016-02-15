@@ -1,32 +1,18 @@
 {% extends 'index.twig' %}
 {% block css %}
 <link rel="stylesheet" href="{{baseurl}}assets/plugins/jqgrid/css/c-ui.css"/>
-<link rel="stylesheet" href="{{baseurl}}assets/plugins/thickbox/css/thickbox.css"/>
 {% endblock %}
 {% block js %}
 <script type="text/javascript" src="{{baseurl}}assets/plugins/jqgrid/js/i18n/grid.locale-id.js"></script>
 <script type="text/javascript" src="{{baseurl}}assets/plugins/jqgrid/js/jquery.jqGrid.min.js"></script>
-<script type="text/javascript" src="{{baseurl}}assets/plugins/thickbox/js/thickbox.js"></script>
 <script type="text/javascript" charset="utf-8">
 const ACTION_REMOVE = 'ACTION_REMOVE';
 const ACTION_EDIT = 'ACTION_EDIT';
+const ACTION_PRINT = 'ACTION_PRINT';
 $.jgrid.defaults.responsive = true;
 $.jgrid.defaults.styleUI = 'Bootstrap';
-var tb_pathToImage = "{{baseurl}}assets/plugins/thickbox/img/ico_waiting.gif";
 var $grid = $('#table');
-
-{% if modal %}
-function buttonOK()
-{
-  var rows = $grid.bootstrapTable('getSelections');
-  if(rows.length > 0) {
-    _.assign(rows[0], {"item_qty": $("#item_jumlah").val()});
-    self.parent.insertData(rows[0]);
-    console.log(rows);
-    tb_remove();
-  }
-}
-{% endif %}
+var $gridDetail = $('#table-detail');
 
 function action(type)
 {
@@ -58,6 +44,12 @@ function action(type)
       case ACTION_EDIT:
       window.location = "{{  url_edit }}/" + rows;
       return;
+      case ACTION_PRINT:
+      console.log(rows);
+      // var lastRow = $grid.jqGrid('getRowData', rows);
+      // window.location = "{{  url_print }}/" + lastRow["{{print_key}}"];
+      window.open("{{  url_print }}/" + rows);
+      return;
     }
   } else {
     Messenger().post({
@@ -74,17 +66,34 @@ $(function () {
     mtype: '{{method}}',
     regional : 'id',
     colModel: {{cols | raw}},
+    multiselect: true,
     viewrecords: true,
     rownumbers: true,
     autowidth: true,
-    height: 480,
+    height: 350,
     rowNum: 20,
-    rowList : [20,30,50, "10000:semua"],
+    rowList : [5,10,20,50, "10000:semua"],
     rownumbers: true,
     rownumWidth: 37,
-    pager: "#jqGridPager"
+    {% if detail_grid_url %}
+    onSelectRow: function(rowid, selected) {
+      if(rowid != null) {
+        $gridDetail.jqGrid('setGridParam',{url: '{{ detail_grid_url }}/'+ rowid, datatype: 'json'}); // the last setting is for demo only
+        $gridDetail.jqGrid('setCaption', '{{ detail_grid_title }}'+ rowid);
+        $gridDetail.trigger("reloadGrid");
+      }
+    }, // use the onSelectRow that is triggered on row click to show a details grid
+    onSortCol : clearSelection,
+    onPaging : clearSelection,
+    {% endif %}
+    beforeSelectRow: function(rowid, e)
+    {
+        $grid.jqGrid('resetSelection');
+        return(true);
+    },
+    pager: "#table-pager"
   });
-  $grid.jqGrid('navGrid', '#jqGridPager', {
+  $grid.jqGrid('navGrid', '#table-pager', {
     edit: false,
     add: false,
     del: false,
@@ -96,30 +105,57 @@ $(function () {
   });
   $grid.jqGrid('bindKeys');
 
+  {% if detail_grid_url %}
+  $gridDetail.jqGrid({
+    url: '{{baseurl}}assets/empty.json',
+    mtype: "GET",
+    datatype: "json",
+    colModel: {{detail_cols | raw}},
+    autowidth: true,
+    height: 250,
+    rowNum: 5,
+    loadonce: true,
+    viewrecords: true,
+    caption: '{{ detail_grid_title }}',
+    pager: "#table-detail-pager"
+  });
+
+  function clearSelection() {
+    $gridDetail.jqGrid('setGridParam',{url: '{{baseurl}}assets/empty.json', datatype: 'json'}); // the last setting is for demo purpose only
+    $gridDetail.jqGrid('setCaption', 'Detail Grid:: none');
+    $gridDetail.trigger("reloadGrid");
+  }
+  {% endif %}
 });
 </script>
+{% block subjs %}{% endblock %}
 {% endblock %}
 {% block content %}
 <div class="block">
   <h6 class="heading-hr">
     <i class="icon-table"></i> {{ title }}
   </h6>
-  {% if url_add %}
-  <div class="well">
-    {% if modal %}
-    <button onclick="tb_remove();" class="btn btn-primary"><i class="icon-box-cancel"></i>Batal</button>
-    <button onclick="buttonOK();" class="btn btn-primary"><i class="icon-box-cancel"></i>Pilih</button>
-    {% else %}
-    <a href="{{url_add}}" class="btn btn-primary"><i class="icon-box-add"></i>Tambah Data</a>
-    <button onclick="action('ACTION_EDIT');" class="btn btn-default"><i class="icon-box-add"></i>Ubah Data</button>
-    <button onclick="action('ACTION_REMOVE');" class="btn btn-danger"><i class="icon-box-remove"></i>Hapus Data</button>
-    {% endif %}
 
+  <div class="well">
+    {% if url_add %}<a href="{{url_add}}" class="btn btn-primary"><i class="icon-box-add"></i>Tambah Data</a>  {% endif %}
+    {% if url_edit %}<button onclick="action('ACTION_EDIT');" class="btn btn-default"><i class="icon-box-add"></i>Ubah Data</button>{% endif %}
+    {% if url_remove %}<button onclick="action('ACTION_REMOVE');" class="btn btn-danger"><i class="icon-box-remove"></i>Hapus Data</button>{% endif %}
+    {% if url_print %}<button onclick="action('ACTION_PRINT');" class="btn btn-primary"><i class="icon-print"></i>Cetak Data</button>{% endif %}
+    {# extends custom toolbar #}
+    {% block toolbar %}{% endblock %}
   </div>
-  {% endif %}
+
   <div style="margin-top: 23px;">
     <table id="table"></table>
-    <div id="jqGridPager"></div>
+    <div id="table-pager"></div>
   </div>
+  {% if detail_grid_url %}
+  <div style="margin-top: 23px;">
+    <table id="table-detail"></table>
+    <div id="table-detail-pager"></div>
+  </div>
+  {% endif %}
+
+
 </div>
 {% endblock %}

@@ -1,0 +1,72 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Purchase</title>
+  <meta name="generator" content="kubuskotak">
+  <link href="{{baseurl}}assets/css/bootstrap.min.css" rel="stylesheet" type="text/css">
+  <link href="{{baseurl}}assets/css/invoice.css" rel="stylesheet" type="text/css">
+  <link href="{{baseurl}}assets/css/font.css" rel="stylesheet" type="text/css">
+</head>
+
+<body>
+  <div class="container-fluid invoice-container">
+    <div class="row">
+      <div class="col-sm-12 text-center">
+          {{ title | raw}}
+      </div>
+    </div>
+    <div class="transactions-container small-text">
+      <table style="border-top: 1px dashed black; border-bottom: 1px dashed black;">
+        <tr>
+          <td><strong>Laporan Harian Penjualan</strong></td>
+          <td colspan="5"></td>
+        </tr>
+          <tr>
+              <td>Tanggal Posting : {{ posting_range }}</td>
+              <td colspan="5"></td>
+          </tr>
+      </table>
+        <table class="table table-condensed">
+          <thead>
+            <tr>
+              <td class="text-center"><strong>Tgl Nota</strong></td>
+              <td class="text-center"><strong>Nota #</strong></td>
+              <td class="text-center"><strong>Reg Pasien #</strong></td>
+              <td class="text-center"><strong>Pasien</strong></td>
+              <td class="text-center"><strong>Tagihan</strong></td>
+              <td class="text-center"><strong>Kasir</strong></td>
+              <td class="text-center"><strong>Total</strong></td>
+            </tr>
+          </thead>
+          <tbody>
+            {% set balance = 0 %}
+            {% for row in rows %}
+            <tr class="even_row">
+                <td class="text-center">{{ row.posting_date }}</td>
+                <td class="text-center">{{row.id}}</td>
+                <td class="text-center">{{row.pasien_reg_no}}</td>
+                <td class="text-center">{{row.pasien_nama}}</td>
+                <td class="text-center">{{ row.price_list }}</td>
+                <td class="text-center">{{ row.kasir}}</td>
+                <td class="text-center" style="text-align: right;">Rp. {{ row.amount | number_format(2, '.', ',')}}</td>
+            </tr>
+            {% set balance = balance + row.amount %}
+            {% endfor %}
+
+            <tr>
+              <td class="text-right" colspan="6"><strong>Balance</strong></td>
+              <td class="text-center" style="text-align: right;">Rp. {{ balance | number_format(2, '.', ',')}}</td>
+            </tr>
+          </tbody>
+        </table>
+    </div>
+    <br>
+    <div class="pull-right btn-group btn-group-sm hidden-print">
+      <a href="javascript:window.print()" class="btn btn-default"><i class="fa fa-print"></i> Print</a>
+      <a href="dl.php?type=i&amp;id=4558" class="btn btn-default"><i class="fa fa-download"></i> Download</a>
+    </div>
+  </div>
+</body>
+</html>

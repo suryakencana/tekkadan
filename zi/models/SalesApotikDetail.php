@@ -1,9 +1,9 @@
 <?php
-/*
- * Copyright (C) 2014 surya || nanang.ask@gmail.com
- *
+/**
+ * Copyright (c) 12 2015 | surya
+ * 07/12/15 nanang.ask@kubuskotak.com
  * This program is free software; you can redistribute it and/or
- * modify it under the terms of the NGNU General Public License
+ * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
  *
@@ -15,33 +15,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ *  SalesApotik.php
  */
 
-/**
- * User: surya
- * Date: 4/25/14
- * Time: 22:11 PM
- */
-namespace Zi;
-/**
-*
-*/
-class Lock_c
-{
-	public function __construct()
-	{
-		$this->app = \App::getInstance();
-       // for control auth author user
-		$this->auth = \Strong\Strong::getInstance();
-
-		if ($this->auth->loggedIn()) {
-			$this->user = $this->auth->getUser();
-		}
-		$this->template_header = "<div>
-		<div>DEPO FARMASI RUMAH SAKIT MATA MASYARAKAT</div>
-		<div>JAWA TIMUR</div>
-		<div>JL. GAYUNG KEBONSARI TIMUR 49</div>
-		<div>SURABAYA</div>
-		</div>";
-	}
+class SalesApotikDetail extends \Zi\DbGen {
+  static $db = 'stocks';
+  static $table_name = 'dx_penjualan_apotik';
+  static $primary_key = 'id';
 }

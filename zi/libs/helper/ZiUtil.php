@@ -65,10 +65,16 @@ class ZiUtil
 			$order = $params['sord'];
 			$condition['order'] = "$sort $order";
 		}
-		if(isset($params['aktif'])){
+		if(isset($params['aktif'])) {
 			//$params['aktif'] = TRUE or False;
 			$aktif = $params['aktif'];
 			$condition['conditions'] = $condition['conditions']." AND aktif = $aktif";
+		}
+		if(!empty($params['a']) && !empty($params['z']) && !empty($params['cdate'])) {
+			$col_date = $params['cdate'];
+			$dquery = sprintf(" AND %s BETWEEN '%s' and '%s' ", $params['cdate'], $params['a'], $params['z']);
+			$query .= $dquery;
+			$condition['conditions'] = $condition['conditions'].$dquery;
 		}
 
 		$result['query'] = $model::all($condition);
@@ -90,7 +96,7 @@ class ZiUtil
 
 	public static function is_set($key, $obj)
 	{
-			return isset($obj[$key]) ? $obj[$key] : '';
+		return isset($obj[$key]) ? $obj[$key] : '';
 	}
 
 	public static function check_bool_int($var)
@@ -148,5 +154,98 @@ class ZiUtil
 	{
 		$date = date("dmY");
 		return($date);
+	}
+
+	public static function generate($filename, $data, $fileDetail)
+	{
+		$objPHPExcel = PHPExcel_IOFactory::load($fileDetail->template);
+		$objPHPExcel->getProperties()->setCreator($fileDetail->creator);
+		$objPHPExcel->getProperties()->setLastModifiedBy($fileDetail->creator);
+		$objPHPExcel->getProperties()->setTitle($fileDetail->title);
+		$objPHPExcel->getProperties()->setSubject($fileDetail->subject);
+		$objPHPExcel->getProperties()->setDescription($fileDetail->desc);
+
+		$objPHPExcel->setActiveSheetIndex(0);
+		foreach ($data as $key => $value) {
+			if ($key == 'bold') {
+				foreach ($value as $val) {
+					$objPHPExcel->getActiveSheet()->getStyle($val)->getFont()->setBold(true);
+				}
+				$setcell = false;
+			} else if (strpos($key,':')) {
+				$objPHPExcel->getActiveSheet()->mergeCells($key);
+				$cell = substr($key, 0, strpos($key,':'));
+				$setcell = true;
+				$cells = $key;
+			} else {
+				$setcell = true;
+				$cell = $key;
+				$cells = $key;
+			}
+
+			if ($setcell) {
+				$objPHPExcel->getActiveSheet()->SetCellValue($cell, $value['value']);
+				switch ($value['align']) {
+					case 'center':
+					$objPHPExcel->getActiveSheet()->getStyle($cell)->getAlignment()->applyFromArray(
+					array('horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_CENTER,));
+					break;
+					case 'right':
+					$objPHPExcel->getActiveSheet()->getStyle($cell)->getAlignment()->applyFromArray(
+					array('horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_RIGHT,));
+					break;
+					default:
+					break;
+				}
+
+				switch ($value['border']) {
+					case 'all':
+					$objPHPExcel->getActiveSheet()->getStyle($cells)->getBorders()->getAllBorders()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+					break;
+					case 'top':
+					$objPHPExcel->getActiveSheet()->getStyle($cells)->getBorders()->getTop()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+					break;
+					case 'left':
+					$objPHPExcel->getActiveSheet()->getStyle($cells)->getBorders()->getLeft()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+					break;
+					case 'right':
+					$objPHPExcel->getActiveSheet()->getStyle($cells)->getBorders()->getRight()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+					break;
+					case 'bottom':
+					$objPHPExcel->getActiveSheet()->getStyle($cells)->getBorders()->getBottom()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+					break;
+					default:
+					break;
+				}
+
+				if (array_key_exists('cur_format', $value)) {
+					if ($value['cur_format']) {
+						//$objPHPExcel->getActiveSheet()->getStyle($cells)->getNumberFormat()->setFormatCode('_([$Rp-421]* #.##0_)');
+						//$objPHPExcel->getActiveSheet()->getStyle($cells)->getNumberFormat()->setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_CURRENCY_USD);
+						$objPHPExcel->getActiveSheet()->getStyle($cells)->getNumberFormat()->setFormatCode('[$Rp-421]* #,##0_-');
+					}
+				}
+			}
+
+		}
+		$objPHPExcel->getActiveSheet()->setTitle($fileDetail->sheetTitle);
+
+		$objWriter = new PHPExcel_Writer_Excel2007($objPHPExcel);
+		header('Content-type: application/vnd.ms-excel');
+		header('Content-Disposition: attachment; filename="'.$fileDetail->filename.'"');
+		$objWriter->save('php://output');exit;
+	}
+
+	public static function defaultFileDetail()
+	{
+		$arr = Array("template"=>"assets/temp/idk.xlsx",
+		"creator"=>"Kubuskotak | Tumbuk Segara Abadi",
+		"lastModified" => "Kubuskotak | Tumbuk Segara Abadi",
+		"title" => "Data Laporan",
+		"subject" => "Data Laporan",
+		"desc" => "Data Laporan",
+		"sheetTitle" => "Laporan",
+		"filename" => "laporan.xlsx");
+		return (object)$arr;
 	}
 }

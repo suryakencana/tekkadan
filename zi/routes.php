@@ -35,7 +35,6 @@ Route::controller('/gen-kode-invoice','main@genInvoice')->get();
 
 /*** master setup ***/
 
-
 Route::controller('/uom','unitOM@index')->get();
 Route::controller('/uom/add','unitOM@a001')->get();
 Route::controller('/uom/add','unitOM@s003')->post();
@@ -99,6 +98,10 @@ Route::controller('/pos/submit','selling@submit_status')->post();
 
 Route::controller('/pos/item','selling@positem')->get();
 
+Route::controller('/pos/print/harian','selling@print_harian')->get();
+
+Route::controller('/pos/print/export','selling@export_excel')->get();
+
 Route::controller('/pos/print(/:id)','selling@print_invoice')->get();
 
 Route::controller('/pos/list','selling@list_penjualan')->get();
@@ -157,6 +160,8 @@ Route::controller('/api/1.0/dosis','selling@dosis')->get();
 Route::controller('/api/1.0/sellprice','selling@pricelist')->get();
 
 Route::controller('/api/1.0/pos','selling@dataset_penjualan')->get();
+
+Route::controller('/api/1.0/pos(/:id)','selling@detail_penjualan')->get();
 
 Route::controller('/u0','login@index')->post()->get()->name('login');
 Route::controller('/u7','login@getOut')->get()->name('logout');

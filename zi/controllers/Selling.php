@@ -224,9 +224,9 @@ class Selling_Controller extends \Zi\Lock_c
             $stockLedger = new ZiStockLedger();
             $stockLedger->insert_db(
               $row["item_kode"],
+              "Sales Apotik",
               $SaleKodeGen,
               $voucher_detail_no,
-              "Sales Apotik",
               (0 - ZiUtil::check_int($row["item_qty"])),
               $row["from_warehouse"],
               $qty_after_trans,
@@ -301,12 +301,7 @@ class Selling_Controller extends \Zi\Lock_c
   public function print_invoice($id)
   {
     $sales = SalesApotik::find($id);
-    $data["title"] = "<div>
-<div>DEPO FARMASI RUMAH SAKIT MATA MASYARAKAT</div>
-<div>JAWA TIMUR</div>
-<div>JL. GAYUNG KEBONSARI TIMUR 49</div>
-<div>SURABAYA</div>
-      </div>";
+    $data["title"] = $this->template_header;
 
     $data["invoice"] = $id;
     $data["posting_date"] = $sales->posting_date;
@@ -373,15 +368,102 @@ class Selling_Controller extends \Zi\Lock_c
     // $dompdf->stream(sprintf("%s.pdf", $id), array("Attachment"=>0));
   }
 
+  public function export_excel()
+  {
+    try {
+      $req = App::request();
+      $params = $req->get();
+      $condition = array();
+      $data = array();
+      $dataExcel = array();
+      if(!empty($params['a']) && !empty($params['z']) && !empty($params['cdate'])) {
+        $col_date = $params['cdate'];
+        $query = sprintf("%s BETWEEN '%s' and '%s' ", $params['cdate'], $params['a'], $params['z']);
+        $condition['conditions'] = $query;
+      }
+
+      $sales = SalesApotik::all($condition);
+
+      $dataExcel["B7:C7"] = array('align' => '', 'value' => sprintf("%s sampai dengan %s", $params['a'], $params['z']), 'border' => '');
+
+      $line = 10;
+      $i = 1;
+      $total = 0;
+      foreach ($sales as $row)
+      {
+        $dataExcel["A".$line] = array('align' => '', 'value' => $i, 'border' => 'all');
+        $dataExcel["B".$line] = array('align' => 'center', 'value' => $row->posting_date, 'border' => 'all');
+        $dataExcel["C".$line] = array('align' => 'center', 'value' => $row->id, 'border' => 'all');
+        $dataExcel["D".$line] = array('align' => 'center', 'value' => $row->pasien_reg_no, 'border' => 'all');
+        $dataExcel["E".$line] = array('align' => 'center', 'value' => $row->pasien_nama, 'border' => 'all');
+        $dataExcel["F".$line] = array('align' => 'center', 'value' => $row->price_list, 'border' => 'all');
+        $dataExcel["G".$line] = array('align' => 'center', 'value' => $row->kasir, 'border' => 'all');
+        $dataExcel["H".$line] = array('align' => 'right', 'value' => $row->amount, 'border' => 'all', 'cur_format' => true);
+        $line++; $i++;
+        $total += $row->amount;
+      }
+      $dataExcel["A".$line.":G".$line] = array('align' => 'right', 'value' => 'Total', 'border' => 'all');
+      $dataExcel["H".$line] = array('align' => 'right', 'value' => $total, 'border' => 'all', 'cur_format' => true);
+      $dataExcel["I".$line.":L".$line] = array('align' => '', 'value' => '', 'border' => 'all');
+
+      $fileDetail = ZiUtil::defaultFileDetail();
+
+      $fileDetail->template = 'assets/temp/lap_invoice.xlsx';
+      $fileDetail->title = "Laporan Order";
+      $fileDetail->subject = "Laporan Order";
+      $fileDetail->desc = "Laporan Order RSMM";
+      $fileDetail->sheetTitle = "Order ";
+      $fileDetail->filename = "Lap-penjualan-harian-".sprintf("%s-sd-%s", $params['a'], $params['z']).".xlsx";
+      $filename = "Lap-penjualan-harian-".sprintf("%s-sd-%s", $params['a'], $params['z']).".xlsx";
+      ZiUtil::generate($filename, $dataExcel, $fileDetail);
+    } catch (Exception $e) {
+      App::flash('error', $e);
+    }
+
+  }
+
+  public function print_harian()
+  {
+    try {
+      $req = App::request();
+      $params = $req->get();
+      $condition = array();
+      $data = array();
+      if(!empty($params['a']) && !empty($params['z']) && !empty($params['cdate'])) {
+  			$col_date = $params['cdate'];
+  			$query = sprintf("%s BETWEEN '%s' and '%s' ", $params['cdate'], $params['a'], $params['z']);
+  			$condition['conditions'] = $query;
+  		}
+
+      $sales = SalesApotik::all($condition);
+
+      $data["rows"] = $sales;
+      $data["title"] = $this->template_header;
+      $data["posting_range"] = sprintf(" %s sampai %s", $params['a'], $params['z']);
+
+    } catch (Exception $e) {
+      App::flash('error', $e);
+    }
+    APP::render('selling/print_laporan_harian', $data);
+  }
+
   public function dataset_penjualan()
   {
     $req = APP::request();
     $params = $req->get();
     $search = ZiUtil::is_set('search', $params);
-    $query = "pasien_nama ILIKE '%".$search."%'";
+    $query = "pasien_nama ILIKE '%".$search."%' and is_canceled = 0";
     $results = ZiUtil::search_result_jq_DB($query, $params, 'SalesApotik');
 
     return ZiUtil::dataset_json($results['query'], $results['total']);
+  }
+
+  public function detail_penjualan($id)
+  {
+    $query = "parent = '".$id."'";
+    $results = SalesApotikDetail::all(array('conditions' => $query));
+    $total = SalesApotikDetail::count(array('conditions' => $query));
+    return ZiUtil::dataset_json($results, $total);
   }
 
   public function list_penjualan()
@@ -423,10 +505,70 @@ class Selling_Controller extends \Zi\Lock_c
     $grid["cols"] = json_encode($cols);
 
     $grid['source_url'] = APP::urlFor('selling.dataset_penjualan');
+
+    $grid['url_print'] = APP::urlFor('selling.print_invoice');
+    $grid['url_harian'] = APP::urlFor('selling.print_invoice');
     $grid['method'] = "GET";
 
     $grid['gridtitle'] = "Penjualan";
+    // untuk detail penjualan
+    $grid['detail_grid_url'] = APP::urlFor('selling.detail_penjualan');
+    $grid['detail_grid_title'] = "Invoice #-";
 
-    APP::render('component/jqgrid_view', $grid);
+    $cols = array();
+    // $cols[] = json_decode('{"field": "state", "checkbox": true}');
+    $cols[] = json_decode('{ "label": "id", "name": "id", "key": true, "hidden": true}');
+    $cols[] = json_decode('{ "label": "Kode Item", "name": "item_kode", "width": 100}');
+    $cols[] = json_decode('{ "label": "Nama Item","name": "item_nama"}');
+    $cols[] = json_decode('{ "label": "UOM", "name": "item_uom", "hidden": true}');
+    $cols[] = json_decode('{ "label": "Dosis", "name": "dosis", "hidden": true}');
+    $cols[] = json_decode('{ "label": "Batch no", "name": "baych_no", "hidden": true}');
+    $cols[] = json_decode('{ "label": "Dari Gudang", "name": "warehouse", "hidden": true}');
+    $cols[] = json_decode('{ "label": "Qty", "name": "actual_qty",
+        "width": 75,
+        "align": "left",
+        "formatter": "integer",
+        "formatoptions": { "thousandsSeparator": "," },
+        "editable": true,
+        "editrules": {
+          "number": true,
+          "minValue": 0,
+          "maxValue": 10000,
+          "required": true
+        }
+      }'
+    );
+    $cols[] = json_decode('{ "label": "Harga Dasar", "name": "basic_rate", "hidden": true}');
+    $cols[] = json_decode('{ "label": "Harga Jual", "name": "item_price",
+      "width": 85,
+      "align": "right",
+      "formatter": "currency",
+      "formatoptions": {
+        "decimalSeparator": ".",
+        "decimalPlaces": "2",
+        "thousandsSeparator": ",",
+        "prefix": "Rp. " },
+        "editable": true,
+        "editrules": {
+          "number": true
+        }
+      }'
+    );
+    $cols[] = json_decode('{ "label": "Total Harga", "name": "amount",
+      "width": 85,
+      "align": "right",
+      "formatter": "currency",
+      "formatoptions": {
+        "decimalSeparator": ".",
+        "decimalPlaces": "2",
+        "thousandsSeparator": ",",
+        "prefix": "Rp. "
+      }
+      }'
+    );
+
+    $grid["detail_cols"] = json_encode($cols);
+
+    APP::render('selling/report_view', $grid);
   }
 }
