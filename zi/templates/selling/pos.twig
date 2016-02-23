@@ -178,6 +178,10 @@
                             printpos(data.kode_invoice);
                         });
                     },
+                    error: function(xhr, status, error) {
+                      console.log(error);
+                      console.log(status);
+                    },
                     complete: function () {
 
                     }
@@ -336,7 +340,6 @@
 
     }
 
-
     $(function () {
       $manual_rate.priceFormat({prefix:'',thousandsSeparator:',',centsSeparator:'',centsLimit: ''});
       $manual_qty.priceFormat({prefix:'',thousandsSeparator:',',centsSeparator:'',centsLimit: ''});
@@ -449,7 +452,6 @@
       });
       $("input[name=cari_pasien]").select2({
         allowClear: true,
-        minimumResultsForSearch: Infinity,
         width: "100%",
         minimumInputLength: 0,
         placeholder: "Cari nama atau No.Reg Pasien",
@@ -457,7 +459,7 @@
           return bond.cust_usr_kode;
         },
         ajax: {
-          url: '{{url_pasien}}',
+          url: '{{url_reg_pasien}}',
           dataType: 'json',
           quietMillis: 100,
           data: function (term, page) {
@@ -501,6 +503,8 @@
         dataset["nama"] = data.cust_usr_nama;
         dataset["alamat"] = data.cust_usr_alamat;
         dataset["regno"] = data.cust_usr_kode;
+        dataset["regid"] = data.reg_id;
+        dataset["custid"] = data.cust_usr_id;
         dataset["jpasien"] = data.reg_jenis_pasien;
         dataPasien(dataset);
       });
@@ -553,44 +557,7 @@
         paramsPage["jenis-tagihan"] = data.price_list_nama;
         paramsPage["kode-tagihan"] = data.kode_invoice;
       });
-      $("input[name=dokter1]").select2({
-        width: "100%",
-        minimumInputLength: 0,
-        placeholder: "Cari Daftar Harga",
-        id: function (bond) {
-          return bond.pgw_id;
-        },
-        ajax: {
-          url: '{{url_dokter}}',
-          dataType: 'json',
-          quietMillis: 100,
-          data: function (term, page) {
-            return { search: term, offset: (page - 1) * 15, limit: 15 };
-          },
-          results: function (data, page) {
-            var more = (page * 15) < data.total;
-            return {results: data.rows, more: more};
-          }
-        },
-        initSelection: function(element, callback) {
-          var id = $(element).val();
-          if (id !== "") {
-            $.ajax("{{url_dokter}}", {
-              dataType: "json",
-              data: { search: id, offset: 0, limit: 1 }
-            }).done(function(data) { callback(data.rows[0]); });
-          }
-        },
-        escapeMarkup: function (markup) {
-          return markup;
-        },
-        formatSelection: function (repo) {
-          return repo.pgw_nama;
-        },
-        formatResult: function (repo) {
-          return repo.pgw_nama;
-        }
-      });
+
       $('input[name=bayar]').on("keyup", function(){
         $('input[name=bayar_total]').val($(this).val().replace(/,/gi, ''));
         calc();
@@ -602,6 +569,56 @@
         $('input[name=bayar]').focus();
         $('input[name=total-calc]').val(accounting.formatMoney($('input[name=total]').val().replace(/,/gi, ''), "Rp ", 2, ".", ","));
       });
+
+      var pasien_nama = $("input[name=pasien_nama]").autocomplete({
+        query: '',
+        minLength: 0,
+        delay: 0,
+        autoFocus: false,
+        select: function( event, ui ) {
+          console.log(ui.item);
+          var ds = ui.item.item;
+          var dataset = {};
+          dataset["nama"] = ds.cust_usr_nama;
+          dataset["alamat"] = ds.cust_usr_alamat;
+          dataset["regno"] = ds.cust_usr_kode;
+          dataset["regid"] = ds.reg_id;
+          dataset["custid"] = ds.cust_usr_id;
+          dataset["jpasien"] = ds.reg_jenis_pasien;
+          dataPasien(dataset);
+        },
+        source: function(request, response) {
+          var that = this;
+          $.ajax({
+            url: '{{url_pasien}}',
+            dataType: 'json',
+            quietMillis: 100,
+            data: { search: request.term, offset: (1 - 1) * 15, limit: 15 },
+            success: function (data) {
+              var items = [];
+              $.each(data.rows, function (i, ritem) {
+                item = {
+                  label: ritem.cust_usr_nama
+                    + '<br>'
+                    + ritem.cust_usr_kode
+                    + ' '
+                    + ritem.cust_usr_alamat || '',
+                  value: ritem.cust_usr_nama || '',
+                  item: ritem
+                };
+                items.push(item);
+              });
+
+              response(items);
+            }
+          });
+        }
+      }).data("uiAutocomplete")._renderItem = function (ul, item) {
+        return  $("<li>")
+            .append("<a style=\"font-size: 10px;\">" + item.label)
+            .appendTo(ul);
+      };
+      pasien_nama.bind("click", function() {$(this).autocomplete('search', "");});
       var dok = $("input[name=dokter]").autocomplete({
         query: '',
         minLength: 0,
@@ -637,10 +654,14 @@
         var nama = $('input[name=pasien_nama]'),
                 alamat = $('textarea[name=pasien_alamat]'),
                 regno = $('input[name=reg_no]'),
+                regid = $('input[name=reg_id]'),
+                custid = $('input[name=cust_id]'),
                 jpasien = $('input[name=pasien_jenis]');
         nama.val(data.nama);
         alamat.text(data.alamat);
         regno.val(data.regno);
+        regid.val(data.regid);
+        custid.val(data.custid);
         jpasien.val(reg_status_pasien[data.jpasien]);
 
         $("input[name=price_list]").select2("val",data.jpasien == 3 ? "SWADANA" : "BPJS" );
@@ -710,6 +731,8 @@
                                     <label>Nomer Pendaftaran:</label>
                                     <input type="text" placeholder="Pasien No.Reg" class="form-control"
                                            name="reg_no" value="{{ data.reg_no }}" />
+                                    <input type="hidden" name="reg_id" value="{{ data.reg_id }}" />
+                                    <input type="hidden" name="cust_id" value="{{ data.cust_id }}" />
                                 </div>
                                 <div class="col-sm-3">
                                     <label>Pasien nama:</label>

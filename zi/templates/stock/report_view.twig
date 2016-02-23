@@ -6,43 +6,10 @@
 const TOOLBAR_SEARCH = 'TOOLBAR_SEARCH';
 const TOOLBAR_EXPORT = 'TOOLBAR_EXPORT';
 const TOOLBAR_PRINT = 'TOOLBAR_PRINT';
-const TOOLBAR_CANCEL = 'TOOLBAR_CANCEL';
 var a_date = $('input[name=date_awal]');
 var z_date = $('input[name=date_akhir]');
 function action_toolbar(type)
 {
-  if(type == TOOLBAR_CANCEL) {
-    var rows = $grid.getGridParam("selrow");
-    if(rows) {
-      bootbox.confirm("Sudah yakin anda?", function(action) {
-        if(!action) {
-          return;
-        }
-        Messenger({
-          extraClasses: 'messenger-fixed messenger-on-top'
-        }).run({
-          successMessage: 'Nota Penjualan sudah dibatalkan.',
-          errorMessage: 'Terjadi kesalahan pada data atau server.',
-          progressMessage: 'Sedang proses simpan data...'
-        }, {
-          url: "{{ url_cancel }}/" + rows,
-          method: "POST",
-          success: function() {
-            // $grid.bootstrapTable('refresh', {url: '{{source_url}}'});
-            $grid.trigger('reloadGrid');
-          }
-        });
-        console.log("ACTION_REMOVE");
-      });
-    } else {
-      Messenger().post({
-        message: 'Pilih data terlebih dahulu.',
-        type: 'info',
-        showCloseButton: true
-      });
-    }
-    return;
-  }
   if(moment(a_date.val()) <= moment(z_date.val())){
     switch (type) {
       case TOOLBAR_SEARCH:
@@ -89,7 +56,6 @@ $(".datepicker").datepicker({
     <button onclick="action_toolbar('TOOLBAR_SEARCH');" class="btn btn-link btn-icon btn-xs tip" title="" data-original-title="Search"><i class="icon-search2"></i></button>
     <button onclick="action_toolbar('TOOLBAR_PRINT');" class="btn btn-link btn-icon btn-xs tip" title="" data-original-title="Print"><i class="icon-print2"></i></a>
     <button onclick="action_toolbar('TOOLBAR_EXPORT');" class="btn btn-link btn-icon btn-xs tip" title="" data-original-title="Export"><i class="icon-file-excel"></i></a>
-    <button onclick="action_toolbar('TOOLBAR_CANCEL');" class="btn btn-link btn-icon btn-xs tip" title="" data-original-title="Export"><i class="icon-remove"></i></a>
   </div>
 </div>
 {% endblock %}

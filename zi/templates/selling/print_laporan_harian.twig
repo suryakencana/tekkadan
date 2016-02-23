@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Purchase</title>
+  <title>LPH {{ posting_range}} </title>
   <meta name="generator" content="kubuskotak">
   <link href="{{baseurl}}assets/css/bootstrap.min.css" rel="stylesheet" type="text/css">
   <link href="{{baseurl}}assets/css/invoice.css" rel="stylesheet" type="text/css">
@@ -20,7 +20,7 @@
     <div class="transactions-container small-text">
       <table style="border-top: 1px dashed black; border-bottom: 1px dashed black;">
         <tr>
-          <td><strong>Laporan Harian Penjualan</strong></td>
+          <td><strong>Laporan Penjualan Harian</strong></td>
           <td colspan="5"></td>
         </tr>
           <tr>
@@ -65,8 +65,17 @@
     <br>
     <div class="pull-right btn-group btn-group-sm hidden-print">
       <a href="javascript:window.print()" class="btn btn-default"><i class="fa fa-print"></i> Print</a>
-      <a href="dl.php?type=i&amp;id=4558" class="btn btn-default"><i class="fa fa-download"></i> Download</a>
+      <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        Export <span class="caret"></span>
+      </button>
+      <ul class="dropdown-menu">
+        <li><a href="{{ source_url }}?{{ params}}&cx=xls">Excel</a></li>
+        <li><a href="#">PDF</a></li>
+      </ul>
+
     </div>
   </div>
+  <script type="text/javascript" src="{{baseurl}}assets/js/jquery-1.11.0.min.js"></script>
+  <script type="text/javascript" src="{{baseurl}}assets/js/bootstrap.min.js"></script>
 </body>
 </html>

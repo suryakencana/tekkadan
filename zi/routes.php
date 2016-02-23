@@ -81,7 +81,6 @@ Route::controller('/stok/batch','stok@viewbatch')->get();
 
 Route::controller('/stok','stok@s003')->post();
 
-
 Route::controller('/stok/entry/list','stok@list_stock_entry')->get();
 
 Route::controller('/stok/ledger/list','stok@list_stock_ledger')->get();
@@ -94,13 +93,13 @@ Route::controller('/pos','selling@pos')->get();
 
 Route::controller('/pos','selling@s003')->post();
 
+Route::controller('/pos/amended(/:id)','selling@d011')->post();
+
 Route::controller('/pos/submit','selling@submit_status')->post();
 
 Route::controller('/pos/item','selling@positem')->get();
 
-Route::controller('/pos/print/harian','selling@print_harian')->get();
-
-Route::controller('/pos/print/export','selling@export_excel')->get();
+Route::controller('/pos/print/export','selling@export')->get();
 
 Route::controller('/pos/print(/:id)','selling@print_invoice')->get();
 
@@ -126,6 +125,8 @@ Route::controller('/api/1.0/jpasien','pasien@jenispasien')->get();
 Route::controller('/api/1.0/grupitem','item@grupitem')->get();
 
 Route::controller('/api/1.0/stok/entry/dataset','stok@dataset_stock_entry')->get();
+
+Route::controller('/api/1.0/stok/entry/dataset(/:id)','stok@detail_stock_entry')->get();
 
 Route::controller('/api/1.0/stok/ledger/dataset','stok@dataset_stock_ledger')->get();
 

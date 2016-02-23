@@ -60,7 +60,7 @@ class ZiUtil
 		$offset = isset($params['page']) ? ((int)$params['page']-1)*(int)$params['rows'] : 0 ;
 
 		$condition = array('conditions' => $query, 'limit' => $limit, 'offset' => $offset);
-		if(!empty($params['sidx']) && isset($params['sidx']) && isset($params['sord'])){
+		if(!empty($params['sidx']) && isset($params['sidx']) && isset($params['sord'])) {
 			$sort = $params['sidx'];
 			$order = $params['sord'];
 			$condition['order'] = "$sort $order";

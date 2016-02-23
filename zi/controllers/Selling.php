@@ -145,7 +145,8 @@ class Selling_Controller extends \Zi\Lock_c
     $grid['url_submit_status'] = APP::urlFor('selling.submit_status');
     $grid['url_item'] = APP::urlFor('item.dataset');
     $grid['url_stok_balance'] = APP::urlFor('stok.balance');
-    $grid['url_pasien'] = APP::urlFor('pasien.reg_pasien');
+    $grid['url_reg_pasien'] = APP::urlFor('pasien.reg_pasien');
+    $grid['url_pasien'] = APP::urlFor('pasien.dataset');
     $grid['url_dokter'] = APP::urlFor('selling.dokter');
     $grid['url_price_list'] = APP::urlFor('pricelist.dataset');
     $grid["url_price_sell"] = App::urlFor("selling.pricelist");
@@ -200,8 +201,24 @@ class Selling_Controller extends \Zi\Lock_c
           $voucher_detail_no = ZiUtil::GetNowID();
           $attr_detail["id"] = $voucher_detail_no;
           $tableDetail = DetailApotik::table();
-
           $tableDetail->insert($attr_detail);
+
+          $attr_folio = array(
+            "fol_id" => $voucher_detail_no,
+            "fol_jenis" => "T",
+            "fol_nama" => $row["item_nama"],
+            "fol_jumlah" => $row["item_qty"],
+            "fol_nominal" => $amount,
+            "fol_nominal_satuan" => $row["item_price"],
+            "fol_waktu" => date("Y-m-d H:i:s"),
+            "id_biaya" => $row["item_kode"],
+            "id_biaya_tambahan" => 0,
+            "id_cust_usr" => $post["cust_id"],
+            "id_reg" => empty($post["reg_id"]) ?  "" : $post["reg_id"]
+          );
+          $table_folio = KlinikFolio::table();
+          $table_folio->insert($attr_folio);
+
           // outgoing
           if (isset($row["from_warehouse"]) && !empty($row["from_warehouse"])) {
 
@@ -264,8 +281,6 @@ class Selling_Controller extends \Zi\Lock_c
         $table = SalesApotik::table();
         $table->insert($attr_master);
 
-
-
         $dataset = array();
         $dataset["success"] = true;
         $dataset["kode_invoice"] = $SaleKodeGen;
@@ -275,7 +290,10 @@ class Selling_Controller extends \Zi\Lock_c
         App::redirect('selling.pos');*/
       }
     } catch (Exception $e) {
-      echo 'Caught exception: ', $e->getMessage(), "\n";
+      // echo 'Caught exception: ', $e->getMessage(), "\n";
+      header('HTTP/1.1 500 Internal Server Booboo');
+      header('Content-Type: application/json; charset=UTF-8');
+      die(json_encode(array('message' => $e->getMessage(), 'code' => 1337)));
     }
   }
 
@@ -368,11 +386,35 @@ class Selling_Controller extends \Zi\Lock_c
     // $dompdf->stream(sprintf("%s.pdf", $id), array("Attachment"=>0));
   }
 
-  public function export_excel()
+  public function export()
   {
     try {
       $req = App::request();
       $params = $req->get();
+      if(!empty($params['cx'])) {
+        switch ($params['cx']) {
+          case 'xls':
+            $this->excel($params);
+            break;
+          case 'pt':
+            $this->print_harian($params);
+            break;
+          case 'pdf':
+            $this->pdf($params);
+            break;
+          default:
+            # code...
+            break;
+        }
+      }
+    } catch (Exception $e) {
+      App::flash('error', $e);
+    }
+  }
+
+  private function excel($params)
+  {
+    try {
       $condition = array();
       $data = array();
       $dataExcel = array();
@@ -413,20 +455,17 @@ class Selling_Controller extends \Zi\Lock_c
       $fileDetail->subject = "Laporan Order";
       $fileDetail->desc = "Laporan Order RSMM";
       $fileDetail->sheetTitle = "Order ";
-      $fileDetail->filename = "Lap-penjualan-harian-".sprintf("%s-sd-%s", $params['a'], $params['z']).".xlsx";
-      $filename = "Lap-penjualan-harian-".sprintf("%s-sd-%s", $params['a'], $params['z']).".xlsx";
+      $fileDetail->filename = "LPH-".sprintf("%s-sd-%s", $params['a'], $params['z']).".xlsx";
+      $filename = "LPH-".sprintf("%s-sd-%s", $params['a'], $params['z']).".xlsx";
       ZiUtil::generate($filename, $dataExcel, $fileDetail);
     } catch (Exception $e) {
       App::flash('error', $e);
     }
-
   }
 
-  public function print_harian()
+  private function pdf($params)
   {
     try {
-      $req = App::request();
-      $params = $req->get();
       $condition = array();
       $data = array();
       if(!empty($params['a']) && !empty($params['z']) && !empty($params['cdate'])) {
@@ -440,10 +479,85 @@ class Selling_Controller extends \Zi\Lock_c
       $data["rows"] = $sales;
       $data["title"] = $this->template_header;
       $data["posting_range"] = sprintf(" %s sampai %s", $params['a'], $params['z']);
+      $data["params"] = sprintf("a=%s&z=%s&cdate=%s", $params['a'], $params['z'], "posting_date");
+      $data["source_url"] = APP::urlFor('selling.export');
 
     } catch (Exception $e) {
       App::flash('error', $e);
     }
+
+    $paper = array("a4", "portrait");
+    $dompdf = APP::print_render('selling/print_laporan_harian', $data, $paper);
+
+    $pdf = $dompdf->get_canvas();
+    $fontMetrics = $dompdf->getFontMetrics();
+    // $font = $fontMetrics->getSystemFonts();
+    $font = $fontMetrics->getFont('helvetica');
+    // If verdana isn't available, we'll use sans-serif.
+    // if (!isset($font)) { $fontMetrics->getFont("sans-serif"); }
+    $size = 6;
+    $color = array(0,0,0);
+
+    $text_height = $fontMetrics->getFontHeight($font, $size);
+
+    $foot = $pdf->open_object();
+
+    $w = $pdf->get_width();
+    $h = $pdf->get_height();
+    $y = $h - 2 * $text_height - 24;
+
+    $pdf->line(16, $y, $w - 16, $y, $color, 1);
+
+    $y += $text_height;
+
+    $text = sprintf("# %s", $id);
+    $pdf->page_text(16, $y, $text, $font, $size, $color);
+
+    $text = "Page {PAGE_NUM} of {PAGE_COUNT}";
+
+    // Center the text
+    $width = $fontMetrics->getTextWidth("Page 1 of 2", $font, $size);
+    $pdf->page_text($w / 2 - $width / 2, $y, $text, $font, $size, $color);
+
+    $pdf->close_object();
+    $pdf->add_object($foot, "all");
+
+    // $watermark = $pdf->open_object();
+    // $pdf->set_opacity(0.87);
+    // $width = Font_Metrics::get_text_width("COPY", Font_Metrics::get_font("verdana", "bold"), 110);
+    // $pdf->text(($w / 2 - $width / 2) + 10, $h / 2, "COPY", Font_Metrics::get_font("verdana", "bold"),
+    //   110, array(0.98, 0.98, 0.98), 0, 13.9, -37);
+
+    // $pdf->close_object();
+    // $pdf->add_object($watermark, "all");
+
+
+    $dompdf->stream(sprintf("%s.pdf", $id), array("Attachment"=>0));
+  }
+
+  private function print_harian($params)
+  {
+    try {
+      $condition = array();
+      $data = array();
+      if(!empty($params['a']) && !empty($params['z']) && !empty($params['cdate'])) {
+  			$col_date = $params['cdate'];
+  			$query = sprintf("%s BETWEEN '%s' and '%s' ", $params['cdate'], $params['a'], $params['z']);
+  			$condition['conditions'] = $query;
+  		}
+
+      $sales = SalesApotik::all($condition);
+
+      $data["rows"] = $sales;
+      $data["title"] = $this->template_header;
+      $data["posting_range"] = sprintf(" %s sampai %s", $params['a'], $params['z']);
+      $data["params"] = sprintf("a=%s&z=%s&cdate=%s", $params['a'], $params['z'], "posting_date");
+      $data["source_url"] = APP::urlFor('selling.export');
+
+    } catch (Exception $e) {
+      App::flash('error', $e);
+    }
+
     APP::render('selling/print_laporan_harian', $data);
   }
 
@@ -508,6 +622,7 @@ class Selling_Controller extends \Zi\Lock_c
 
     $grid['url_print'] = APP::urlFor('selling.print_invoice');
     $grid['url_harian'] = APP::urlFor('selling.print_invoice');
+    $grid['url_cancel'] = APP::urlFor('selling.d011');
     $grid['method'] = "GET";
 
     $grid['gridtitle'] = "Penjualan";
@@ -522,7 +637,7 @@ class Selling_Controller extends \Zi\Lock_c
     $cols[] = json_decode('{ "label": "Nama Item","name": "item_nama"}');
     $cols[] = json_decode('{ "label": "UOM", "name": "item_uom", "hidden": true}');
     $cols[] = json_decode('{ "label": "Dosis", "name": "dosis", "hidden": true}');
-    $cols[] = json_decode('{ "label": "Batch no", "name": "baych_no", "hidden": true}');
+    $cols[] = json_decode('{ "label": "Batch no", "name": "batch_no", "hidden": true}');
     $cols[] = json_decode('{ "label": "Dari Gudang", "name": "warehouse", "hidden": true}');
     $cols[] = json_decode('{ "label": "Qty", "name": "actual_qty",
         "width": 75,
@@ -570,5 +685,35 @@ class Selling_Controller extends \Zi\Lock_c
     $grid["detail_cols"] = json_encode($cols);
 
     APP::render('selling/report_view', $grid);
+  }
+
+  public function d011($id = null)
+  {
+    if(!empty($id)) {
+      $req = App::request();
+      if ($req->isPost()) {
+        $post = $req->post();
+        // url_cancel
+        $sales = SalesApotik::find($id);
+        if(!empty($sales)) {
+          $sales->is_canceled = 1;
+          $sales->save();
+          //jika berhasil hapus record
+          $query = "parent = '".$id."'";
+          $results = SalesApotikDetail::all(array('conditions' => $query));
+          if(!empty($results)) {
+              foreach ($results as $row) {
+                //jika berhasil hapus record
+                $folio = KlinikFolio::find($row->id);
+                $folio->delete();
+              }
+          }
+          ZiUtil::to_json(json_encode("{ success: true}"));
+          return;
+        }
+      }
+    }
+    App::flash('error', 'Terjadi kesalahan pada inputan anda.');
+    App::redirect('selling.list_penjualan');
   }
 }

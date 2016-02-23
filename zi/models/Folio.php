@@ -18,8 +18,8 @@
  *  RegPasien.php
  */
 
-class RegPasien extends \Zi\DbGen {
-  static $db = 'stocks';
-  static $table_name = 'reg_pasien_apotik';
-  static $primary_key = 'cust_usr_kode';
+class KlinikFolio extends \Zi\DbGen {
+  static $db = 'klinik';
+  static $table_name = 'klinik_folio';
+  static $primary_key = 'fol_id';
 }

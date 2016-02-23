@@ -380,6 +380,14 @@ class Stok_Controller extends \Zi\Lock_c
     return ZiUtil::dataset_json($results['query'], $results['total']);
   }
 
+  public function detail_stock_entry($id)
+  {
+    $query = "stok_entry = '".$id."'";
+    $results = StokEntryD::all(array('conditions' => $query));
+    $total = StokEntryD::count(array('conditions' => $query));
+    return ZiUtil::dataset_json($results, $total);
+  }
+
   public function list_stock_entry()
   {
     $grid['folder'] = "Laporan";
@@ -387,8 +395,8 @@ class Stok_Controller extends \Zi\Lock_c
 
     $cols = array();
     // $cols[] = json_decode('{"field": "state", "checkbox": true}');
-    $cols[] = json_decode('{"name": "id", "key": true,"hidden": true}');
-    $cols[] = json_decode('{ "label": "Kode Entry", "name": "stok_entry_kode"}');
+    $cols[] = json_decode('{"name": "id", "hidden": true}');
+    $cols[] = json_decode('{ "label": "Kode Entry", "name": "stok_entry_kode", "key": true}');
     $cols[] = json_decode('{ "label": "Tanggal Posting", "name": "posting_date"}');
     $cols[] = json_decode('{ "label": "Jam Posting", "name": "posting_time"}');
     $cols[] = json_decode('{ "label": "Jenis Entry", "name": "stok_entry_tipe"}');
@@ -430,7 +438,61 @@ class Stok_Controller extends \Zi\Lock_c
 
     $grid['gridtitle'] = "Stok Entry";
 
-    APP::render('component/jqgrid_view', $grid);
+    // untuk detail penjualan
+    $grid['detail_grid_url'] = APP::urlFor('stok.detail_stock_entry');
+    $grid['detail_grid_title'] = "Invoice #-";
+
+    $cols = array();
+    // $cols[] = json_decode('{"field": "state", "checkbox": true}');
+    $cols[] = json_decode('{ "name": "id", "key": true, "hidden": true}');
+    $cols[] = json_decode('{ "label": "Kode Item", "name": "item_kode", "width": 100}');
+    $cols[] = json_decode('{ "label": "Nama Item","name": "item_nama"}');
+    $cols[] = json_decode('{ "label": "UOM", "name": "item_uom"}');
+    $cols[] = json_decode('{ "label": "Stok Entry #", "name": "stok_entry"}');
+    $cols[] = json_decode('{ "label": "Dari Gudang", "name": "warehouse", "hidden": true}');
+    $cols[] = json_decode('{ "label": "Qty", "name": "qty",
+        "width": 75,
+        "align": "left",
+        "formatter": "integer",
+        "formatoptions": { "thousandsSeparator": "," }
+      }'
+    );
+    $cols[] = json_decode('{ "label": "Stok Tersedia", "name": "actual_qty",
+        "width": 75,
+        "align": "left",
+        "formatter": "integer",
+        "formatoptions": { "thousandsSeparator": "," }
+      }'
+    );
+    $cols[] = json_decode('{ "label": "Harga Dasar", "name": "basic_rate"}');
+    $cols[] = json_decode('{ "label": "Harga Jual", "name": "basic_amount",
+      "width": 85,
+      "align": "right",
+      "formatter": "currency",
+      "formatoptions": {
+        "decimalSeparator": ".",
+        "decimalPlaces": "2",
+        "thousandsSeparator": ",",
+        "prefix": "Rp. "
+      }
+    }'
+    );
+    $cols[] = json_decode('{ "label": "Prediksi Harga", "name": "valuation_rate",
+      "width": 85,
+      "align": "right",
+      "formatter": "currency",
+      "formatoptions": {
+        "decimalSeparator": ".",
+        "decimalPlaces": "2",
+        "thousandsSeparator": ",",
+        "prefix": "Rp. "
+      }
+    }'
+    );
+
+    $grid["detail_cols"] = json_encode($cols);
+
+    APP::render('stock/report_view', $grid);
   }
 
   public function dataset_stock_ledger()
@@ -513,7 +575,7 @@ class Stok_Controller extends \Zi\Lock_c
 
     $grid['gridtitle'] = "Kartu Stok";
 
-    APP::render('component/jqgrid_view', $grid);
+    APP::render('stock/report_view', $grid);
     }
 
   public function viewbalance()
