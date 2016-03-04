@@ -225,6 +225,13 @@ class ZiUtil
 						$objPHPExcel->getActiveSheet()->getStyle($cells)->getNumberFormat()->setFormatCode('[$Rp-421]* #,##0_-');
 					}
 				}
+				if (array_key_exists('num_format', $value)) {
+					if ($value['num_format']) {
+						//$objPHPExcel->getActiveSheet()->getStyle($cells)->getNumberFormat()->setFormatCode('_([$Rp-421]* #.##0_)');
+						//$objPHPExcel->getActiveSheet()->getStyle($cells)->getNumberFormat()->setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_CURRENCY_USD);
+						$objPHPExcel->getActiveSheet()->getStyle($cells)->getNumberFormat();
+					}
+				}
 			}
 
 		}

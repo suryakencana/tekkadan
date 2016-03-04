@@ -81,6 +81,8 @@ Route::controller('/stok/batch','stok@viewbatch')->get();
 
 Route::controller('/stok','stok@s003')->post();
 
+Route::controller('/stok/print/export','stok@export')->get();
+
 Route::controller('/stok/entry/list','stok@list_stock_entry')->get();
 
 Route::controller('/stok/ledger/list','stok@list_stock_ledger')->get();

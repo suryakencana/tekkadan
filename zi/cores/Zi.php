@@ -72,7 +72,7 @@ class Zi extends \Slim\Slim
       );
       $cfg->set_default_connection($app->mode);
     });
-    $app->conn = \ActiveRecord\ConnectionManager::get_connection($app->mode);
+    $this->conn = \ActiveRecord\ConnectionManager::get_connection($app->mode);
   }
 
   protected function setAuth()

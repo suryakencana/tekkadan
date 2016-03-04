@@ -574,6 +574,7 @@ class Stok_Controller extends \Zi\Lock_c
     $grid['method'] = "GET";
 
     $grid['gridtitle'] = "Kartu Stok";
+    $grid['url_print'] = APP::urlFor('stok.export');
 
     APP::render('stock/report_view', $grid);
     }
@@ -628,4 +629,133 @@ class Stok_Controller extends \Zi\Lock_c
 
     APP::render('stock/grid_saldo_batch', $grid);
   }
+
+  private function excel($params)
+  {
+    try {
+      $condition = array();
+      $data = array();
+      $dataExcel = array();
+      if(!empty($params['a']) && !empty($params['z']) && !empty($params['cdate'])) {
+        $col_date = $params['cdate'];
+        $query = sprintf("%s BETWEEN '%s' and '%s' ", $params['cdate'], $params['a'], $params['z']);
+        $condition['conditions'] = $query;
+      }
+
+      $ar_adapter = \ActiveRecord\ConnectionManager::get_connection($this->app->mode);
+
+      $connection = $ar_adapter->connection;
+
+      $stmt = $connection->prepare("select (stocks.get_stock_harian(:awal, :akhir)).*");
+      $stmt->bindParam(':awal', $params['a']);
+      $stmt->bindParam(':akhir', $params['z']);
+
+      $stmt->execute();
+
+      $stocks = $stmt->fetchAll(PDO::FETCH_CLASS);
+
+      $dataExcel["B7:C7"] = array('align' => '', 'value' => sprintf("%s sampai dengan %s", $params['a'], $params['z']), 'border' => '');
+
+      $line = 10;
+      $i = 1;
+      $total = 0;
+      foreach ($stocks as $row)
+      {
+        $awal = ($row->keluar+$row->balance) - $row->masuk;
+        $awal = $awal < 0 ? 0 : $awal;
+        $dataExcel["A".$line] = array('align' => '', 'value' => $i, 'border' => 'all');
+        $dataExcel["B".$line] = array('align' => 'center', 'value' => $row->item_kode, 'border' => 'all');
+        $dataExcel["C".$line] = array('align' => 'center', 'value' => $row->item_nama, 'border' => 'all');
+        $dataExcel["D".$line] = array('align' => 'right', 'value' => $awal, 'border' => 'all', 'num_format' => true);
+        $dataExcel["E".$line] = array('align' => 'right', 'value' => $row->masuk, 'border' => 'all', 'num_format' => true);
+        $dataExcel["F".$line] = array('align' => 'right', 'value' => $row->keluar, 'border' => 'all', 'num_format' => true);
+        $dataExcel["G".$line] = array('align' => 'right', 'value' => $row->balance, 'border' => 'all', 'num_format' => true);
+        $dataExcel["H".$line] = array('align' => 'center', 'value' => $row->warehouse_nama, 'border' => 'all');
+        $line++; $i++;
+        $total += 1;
+      }
+      $dataExcel["A".$line.":c".$line] = array('align' => 'right', 'value' => 'Total', 'border' => 'all');
+      $dataExcel["D".$line] = array('align' => 'right', 'value' => "=SUM(D10:D".($line-1).")", 'border' => 'all', 'num_format' => true);
+      $dataExcel["E".$line] = array('align' => 'right', 'value' => "=SUM(E10:E".($line-1).")", 'border' => 'all', 'num_format' => true);
+      $dataExcel["F".$line] = array('align' => 'right', 'value' => "=SUM(F10:F".($line-1).")", 'border' => 'all', 'num_format' => true);
+      $dataExcel["G".$line] = array('align' => 'right', 'value' => "=SUM(G10:G".($line-1).")", 'border' => 'all', 'num_format' => true);
+      $dataExcel["I".$line.":L".$line] = array('align' => '', 'value' => '', 'border' => 'all');
+
+      $fileDetail = ZiUtil::defaultFileDetail();
+
+      $fileDetail->template = 'assets/temp/lap_stock.xlsx';
+      $fileDetail->title = "Laporan Stock";
+      $fileDetail->subject = "Laporan Stock";
+      $fileDetail->desc = "Laporan Stock RSMM";
+      $fileDetail->sheetTitle = "Stock ";
+      $fileDetail->filename = "LSH-".sprintf("%s-sd-%s", $params['a'], $params['z']).".xlsx";
+      $filename = "LSH-".sprintf("%s-sd-%s", $params['a'], $params['z']).".xlsx";
+      ZiUtil::generate($filename, $dataExcel, $fileDetail);
+    } catch (Exception $e) {
+      App::flash('error', $e);
+    }
+  }
+
+  private function print_harian($params)
+  {
+    try {
+      $condition = array();
+      $data = array();
+      if(!empty($params['a']) && !empty($params['z']) && !empty($params['cdate'])) {
+  			$col_date = $params['cdate'];
+  			$query = sprintf("%s BETWEEN '%s' and '%s' ", $params['cdate'], $params['a'], $params['z']);
+  			$condition['conditions'] = $query;
+  		}
+
+      $ar_adapter = \ActiveRecord\ConnectionManager::get_connection($this->app->mode);
+
+      $connection = $ar_adapter->connection;
+
+      $stmt = $connection->prepare("select (stocks.get_stock_harian(:awal, :akhir)).*");
+      $stmt->bindParam(':awal', $params['a']);
+      $stmt->bindParam(':akhir', $params['z']);
+
+      $stmt->execute();
+
+      $stocks = $stmt->fetchAll(PDO::FETCH_CLASS);
+
+      // print_r($stocks);
+      $data["rows"] = $stocks;
+      $data["title"] = $this->template_header;
+      $data["posting_range"] = sprintf(" %s sampai %s", $params['a'], $params['z']);
+      $data["params"] = sprintf("a=%s&z=%s&cdate=%s", $params['a'], $params['z'], "posting_date");
+      $data["source_url"] = APP::urlFor('stok.export');
+
+    } catch (Exception $e) {
+      App::flash('error', $e);
+    }
+    APP::render('stock/print_laporan_harian', $data);
+  }
+
+  public function export()
+  {
+    try {
+      $req = App::request();
+      $params = $req->get();
+      if(!empty($params['cx'])) {
+        switch ($params['cx']) {
+          case 'xls':
+            $this->excel($params);
+            break;
+          case 'pt':
+            $this->print_harian($params);
+            break;
+          case 'pdf':
+            $this->pdf($params);
+            break;
+          default:
+            # code...
+            break;
+        }
+      }
+    } catch (Exception $e) {
+      App::flash('error', $e);
+    }
+  }
+
 }

@@ -17,11 +17,11 @@ function action_toolbar(type)
       $grid.trigger("reloadGrid");
       return;
       case TOOLBAR_EXPORT:
-      window.open("{{ url_print }}/export?a=" + a_date.val() + '&z=' + z_date.val() + '&cdate=posting_date&cx=xls');
+      window.open("{{ url_print }}?a=" + a_date.val() + '&z=' + z_date.val() + '&cdate=posting_date&cx=xls');
       console.log('TOOLBAR_EXPORT');
       return;
       case TOOLBAR_PRINT:
-      window.open("{{ url_print }}/export?a=" + a_date.val() + '&z=' + z_date.val() + '&cdate=posting_date&cx=pt');
+      window.open("{{ url_print }}?a=" + a_date.val() + '&z=' + z_date.val() + '&cdate=posting_date&cx=pt');
       console.log('TOOLBAR_PRINT');
       return;
     }

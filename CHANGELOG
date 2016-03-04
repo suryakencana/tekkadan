@@ -27,7 +27,7 @@ PATCH version when you make backwards-compatible bug fixes.
 - [x][MJR][report][POS] Print per transaksi record
 
 :: Register Pasien
-- tagihan kasir di table klinik_folio detail item penjualan
+- [x] tagihan kasir di table klinik_folio detail item penjualan
  -> ambil reg_id dari klinik_registrasi untuk input id_reg klinik_folio
  -> fol_nama untuk nama per item
  -> id_biaya inputan kode item
@@ -40,4 +40,5 @@ diganti jika pasien sudah melakukan pembayaran dikasir
 
  ::rechanged
  - table tx_penjualan_apotik
-  . tambah field is_canceled integer 0
+  . [x] tambah field is_canceled integer 0
+  . refund jumlah item transaksi
