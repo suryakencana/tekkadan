@@ -224,7 +224,7 @@ class Stok_Controller extends \Zi\Lock_c
                 $basic_amount = ZiUtil::check_int($row["item_amount"]);
                 // beda receipt dg transfer item_price ikut valuation rate
                 $basic_rate = ZiUtil::check_int($row["item_price"]);
-
+                $row["item_batch"] = (!array_key_exists("item_batch", $row)) ? null : $row["item_batch"];
                 $additional_cost = 0;
                 // valuation_rate
                 $amount_rate = $basic_rate+$additional_cost;
@@ -516,7 +516,7 @@ class Stok_Controller extends \Zi\Lock_c
     $cols[] = json_decode('{"name": "id", "key": true,"hidden": true}');
     $cols[] = json_decode('{ "label": "Tanggal Posting", "name": "posting_date"}');
     $cols[] = json_decode('{ "label": "Jam Posting", "name": "posting_time"}');
-    $cols[] = json_decode('{ "label": "Kode Item", "name": "item_kode"}');
+    $cols[] = json_decode('{ "label": "Nama Item", "name": "item_nama"}');
     $cols[] = json_decode('{ "label": "Satuan", "name": "item_uom"}');
     $cols[] = json_decode('{ "label": "Jumlah", "name": "actual_qty",
       "width": 75,

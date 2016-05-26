@@ -1,20 +1,20 @@
 {% extends 'selling/index.twig' %}
 {% block sub_css %}
-    <link rel="stylesheet" href="{{baseurl}}assets/plugins/jqgrid/css/c-ui.css"/>
-    <link rel="stylesheet" href="{{baseurl}}assets/plugins/thickbox/css/thickbox.css"/>
+  <link rel="stylesheet" href="{{baseurl}}assets/plugins/jqgrid/css/c-ui.css"/>
+  <link rel="stylesheet" href="{{baseurl}}assets/plugins/thickbox/css/thickbox.css"/>
 {% endblock %}
 
 {% block sub_js %}
-    <script type="text/javascript" src="{{baseurl}}assets/js/jquery-ui.min.js"></script>
-    <script type="text/javascript" src="{{baseurl}}assets/plugins/keymaster.js"></script>
-    <script type="text/javascript" src="{{baseurl}}assets/plugins/jqgrid/js/i18n/grid.locale-id.js"></script>
-    <script type="text/javascript" src="{{baseurl}}assets/plugins/jqgrid/js/jquery.jqGrid.min.js"></script>
-    <script type="text/javascript" src="{{baseurl}}assets/js/plugins/forms/select2.min.js"></script>
-    <script type="text/javascript" src="{{baseurl}}assets/plugins/thickbox/js/thickbox.js"></script>
-    <script type="text/javascript" src="{{baseurl}}assets/plugins/validate.min.js"></script>
-    <script type="text/javascript" src="{{baseurl}}assets/plugins/price.js"></script>
-    <script type="text/javascript" src="{{baseurl}}assets/plugins/accounting.min.js"></script>
-    <script type="text/javascript" charset="utf-8">
+  <script type="text/javascript" src="{{baseurl}}assets/js/jquery-ui.min.js"></script>
+  <script type="text/javascript" src="{{baseurl}}assets/plugins/keymaster.js"></script>
+  <script type="text/javascript" src="{{baseurl}}assets/plugins/jqgrid/js/i18n/grid.locale-id.js"></script>
+  <script type="text/javascript" src="{{baseurl}}assets/plugins/jqgrid/js/jquery.jqGrid.min.js"></script>
+  <script type="text/javascript" src="{{baseurl}}assets/js/plugins/forms/select2.min.js"></script>
+  <script type="text/javascript" src="{{baseurl}}assets/plugins/thickbox/js/thickbox.js"></script>
+  <script type="text/javascript" src="{{baseurl}}assets/plugins/validate.min.js"></script>
+  <script type="text/javascript" src="{{baseurl}}assets/plugins/price.js"></script>
+  <script type="text/javascript" src="{{baseurl}}assets/plugins/accounting.min.js"></script>
+  <script type="text/javascript" charset="utf-8">
     key.filter = function(event){
       var tagName = (event.target || event.srcElement).tagName;
       key.setScope(/^(INPUT|TEXTAREA|SELECT)$/.test(tagName) ? 'input' : 'other');
@@ -34,9 +34,9 @@
     paramsPage["jenis-tagihan"] = "SWADANA";
     paramsPage["kode-tagihan"] = "070";
     var constraints_parent = {
-        bayar_total: {presence: true},
-        price_list: {presence: true},
-        reg_no: {presence: true}
+      bayar_total: {presence: true},
+      price_list: {presence: true},
+      reg_no: {presence: true}
     };
 
     var reg_status_pasien = [];
@@ -57,9 +57,9 @@
     reg_status_pasien.push("BPJS Jamkesmas"); //14
     reg_status_pasien.push("Lain - Lain"); //15
     function printpos(kode){
-        var w = window.open("{{ print_nota }}"+"/"+kode);
-        w.print();
-        //w.close();
+      var w = window.open("{{ print_nota }}"+"/"+kode);
+      w.print();
+      //w.close();
     }
 
     function cekStok_pos(itemKode, warehouse, uom)
@@ -89,24 +89,24 @@
     }
 
     $("#form_payment, input[name=bayar]").on('keydown', function (e) {
-        switch(e.which) {
-            case 116:
+      switch(e.which) {
+        case 116:
                 // F5
                 $('#pay-nota').trigger("click");
                 e.preventDefault();
                 return;
-        }
-    });
+              }
+            });
     $("input[name=manual_qty], input[name=manual_jual]").on('keydown', function (e) {
-        switch(e.which) {
-            case 118:
+      switch(e.which) {
+        case 118:
                 // F7
                 console.log('enter enter insert data');
                 insert_manual();
                 e.preventDefault();
                 return;
-        }
-    });
+              }
+            });
     key('enter', function(e, handler){
       var el = $(e.target);
       $(':input:eq(' + ($(':input').index(el) + 1) + ')').focus();
@@ -119,138 +119,138 @@
       return true;
     });
     $('#pay-nota').on('click', function() {
-        var $form = $('form#form-pos');
-        var dtset = $gridpos.jqGrid('getRowData');
-        var dd = validate.single(dtset, {presence: true});
+      var $form = $('form#form-pos');
+      var dtset = $gridpos.jqGrid('getRowData');
+      var dd = validate.single(dtset, {presence: true});
 
-        var errors = validate($form, constraints_parent);
-        if (!errors && !dd) {
-            var vbayar = $('input[name=bayar]').val().replace(/,/gi, "");
-            var total = $('input[name=total]').val().replace(/,/gi, "");
-            if (parseFloat(vbayar) < parseFloat(total)) {
-                Messenger().post({
-                    message: "Total Uang Bayar: " + accounting.formatMoney(vbayar.replace(/,/gi, ''), "Rp ", 2, ".", ",") + " Tidak Mencukupi",
-                    type: 'error',
-                    showCloseButton: true
-                });
-                return false;
-            }
-            bootbox.confirm("Sudah yakin anda memproses transaksi ini?", function (action) {
-                if (!action) {
-                    return false;
-                }
-                var input = $("<input>")
-                                .attr("type", "hidden")
-                                .attr("name", "rows").val(JSON.stringify(dtset)),
-                        chasier = $("<input>")
-                                .attr("type", "hidden")
-                                .attr("name", "kasir").val("{{ cashier }}"),
-                        invoice = $("<input>")
-                                .attr("type", "hidden")
-                                .attr("name", "kode_invoice").val(paramsPage["kode-tagihan"]);
-                $form.append($(chasier));
-                $form.append($(input));
-                $form.append($(invoice));
-
-                var formArray = $form.serializeArray();
-                var result = {};
-                _.map(formArray, function (k, v) {
-                    var name = k['name'],
-                            objs = {};
-                    objs[name] = k['value'];
-                    _.assign(result, objs);
-                });
-                $.ajax({
-                    url: "{{url_submit}}",
-                    method: "POST",
-                    dataType: "json",
-                    data: result,
-                    success: function (data) {
-                        console.log(data);
-                        var kode_tagihan = $("<input>")
-                                .attr("type", "hidden")
-                                .attr("name", "kode_tagihan").val(data.kode_invoice);
-                        $form.append($(kode_tagihan));
-                        bootbox.confirm("Print Nota?", function (action) {
-                            if (!action) {
-                                return false;
-                            }
-                            printpos(data.kode_invoice);
-                        });
-                    },
-                    error: function(xhr, status, error) {
-                      console.log(error);
-                      console.log(status);
-                    },
-                    complete: function () {
-
-                    }
-                });
-                console.log(result);
-                // form submit
-                setTimeout(function(){
-                    $form.submit();
-                }, 5000);
-            });
-        } else {
-            Messenger().post({
-                message: "Data harap diisi terlebih dahulu",
-                type: 'error',
-                showCloseButton: true
-            });
+      var errors = validate($form, constraints_parent);
+      if (!errors && !dd) {
+        var vbayar = $('input[name=bayar]').val().replace(/,/gi, "");
+        var total = $('input[name=total]').val().replace(/,/gi, "");
+        if (parseFloat(vbayar) < parseFloat(total)) {
+          Messenger().post({
+            message: "Total Uang Bayar: " + accounting.formatMoney(vbayar.replace(/,/gi, ''), "Rp ", 2, ".", ",") + " Tidak Mencukupi",
+            type: 'error',
+            showCloseButton: true
+          });
+          return false;
         }
+        bootbox.confirm("Sudah yakin anda memproses transaksi ini?", function (action) {
+          if (!action) {
+            return false;
+          }
+          var input = $("<input>")
+          .attr("type", "hidden")
+          .attr("name", "rows").val(JSON.stringify(dtset)),
+          chasier = $("<input>")
+          .attr("type", "hidden")
+          .attr("name", "kasir").val("{{ cashier }}"),
+          invoice = $("<input>")
+          .attr("type", "hidden")
+          .attr("name", "kode_invoice").val(paramsPage["kode-tagihan"]);
+          $form.append($(chasier));
+          $form.append($(input));
+          $form.append($(invoice));
+
+          var formArray = $form.serializeArray();
+          var result = {};
+          _.map(formArray, function (k, v) {
+            var name = k['name'],
+            objs = {};
+            objs[name] = k['value'];
+            _.assign(result, objs);
+          });
+          $.ajax({
+            url: "{{url_submit}}",
+            method: "POST",
+            dataType: "json",
+            data: result,
+            success: function (data) {
+              console.log(data);
+              var kode_tagihan = $("<input>")
+              .attr("type", "hidden")
+              .attr("name", "kode_tagihan").val(data.kode_invoice);
+              $form.append($(kode_tagihan));
+              bootbox.confirm("Print Nota?", function (action) {
+                if (!action) {
+                  return false;
+                }
+                printpos(data.kode_invoice);
+              });
+            },
+            error: function(xhr, status, error) {
+              console.log(error);
+              console.log(status);
+            },
+            complete: function () {
+
+            }
+          });
+          console.log(result);
+                // form submit
+          // setTimeout(function(){
+          //     $form.submit();
+          //   }, 5000);
+        });
+      } else {
+        Messenger().post({
+          message: "Data harap diisi terlebih dahulu",
+          type: 'error',
+          showCloseButton: true
+        });
+      }
     });
     $(document).on('keydown', function (e) {
 
-        switch(e.which) {
-            case 114:
+      switch(e.which) {
+        case 114:
                 // F3
                 e.preventDefault();
                 calcBayar();
                 $('#form_payment').modal({
-                    show: true
+                  show: true
                 });
                 return;
-            case 112:
+                case 112:
                 // F1
                 e.preventDefault();
                 $('#item-add').trigger("click");
                 return;
-            case 113:
+                case 113:
                 // F2
                 $("input[name=cari_pasien]").select2("open");
                 $("input[name=cari_pasien]").focus();
                 e.preventDefault();
                 return;
-            case 115:
+                case 115:
                 // F4
                 $("input[name=price_list]").select2("open");
                 $("input[name=price_list]").focus();
                 e.preventDefault();
                 return;
-            case 116:
+                case 116:
                 // F5
                 $('input[name=bayar]').trigger("click");
                 e.preventDefault();
                 return;
-            case 117:
+                case 117:
                 // F6
                 $("input[name=manual_item_kode]").select2("open");
                 $("input[name=manual_item_kode]").focus();
                 e.preventDefault();
                 return;
 
-        }
-        if (e.shiftKey && e.which == 80) {
+              }
+              if (e.shiftKey && e.which == 80) {
             //add new tab
 
             e.preventDefault();
-        }
-        if (e.shiftKey && e.which == 88) {
+          }
+          if (e.shiftKey && e.which == 88) {
             //close tab
             e.preventDefault();
-        }
-    });
+          }
+        });
     function insert_manual()
     {
       var objs = {};
@@ -264,12 +264,12 @@
       objs["basic_rate"] = $("input[name=manual_jual]").val();
 
       if(parseInt(objs["item_qty"]) <= 0) {
-          Messenger().post({
-              message: "Jumlah Item Harus diisi",
-              type: 'error',
-              showCloseButton: true
-          });
-          return;
+        Messenger().post({
+          message: "Jumlah Item Harus diisi",
+          type: 'error',
+          showCloseButton: true
+        });
+        return;
       }
 
       if (parseInt(objs["item_qty"]) > parseInt(objs["actual_qty"])) {
@@ -284,35 +284,35 @@
     }
     function insertData(data)
     {
-        var results = [],
-                price = data['item_price'].replace(/,/gi, ""),
-                basic = data['basic_rate'].replace(/,/gi, ""),
-                qty = data['item_qty'].replace(/,/gi, ""),
-                actual_qty = data['actual_qty'],
-                total_amount = parseInt(price) * parseInt(qty);
-        var _id = Math.floor((Math.random() * 100000) + 1);
-        _.assign(data, {id:_id,item_amount: total_amount,
-            item_price: price, item_qty: qty,
-            basic_rate: basic,
-            actual_qty: actual_qty});
+      var results = [],
+      price = data['item_price'].replace(/,/gi, ""),
+      basic = data['basic_rate'].replace(/,/gi, ""),
+      qty = data['item_qty'].replace(/,/gi, ""),
+      actual_qty = data['actual_qty'],
+      total_amount = parseInt(price) * parseInt(qty);
+      var _id = Math.floor((Math.random() * 100000) + 1);
+      _.assign(data, {id:_id,item_amount: total_amount,
+        item_price: price, item_qty: qty,
+        basic_rate: basic,
+        actual_qty: actual_qty});
         // console.log(data);
         var parameters =
         {
-            rowID : _id,
-            initdata : data,
-            position :"first",
-            useDefValues : false,
-            useFormatter : false,
-            addRowParams : {extraparam:{}}
+          rowID : _id,
+          initdata : data,
+          position :"first",
+          useDefValues : false,
+          useFormatter : false,
+          addRowParams : {extraparam:{}}
         };
         $gridpos.jqGrid('addRow', parameters);
         $gridpos.trigger('reloadGrid');
         calcBayar();
-    }
-    function _handleRemoveRows()
-    {
-      var rows = $gridpos.jqGrid('getGridParam', 'selrow');
-      if (rows) {
+      }
+      function _handleRemoveRows()
+      {
+        var rows = $gridpos.jqGrid('getGridParam', 'selrow');
+        if (rows) {
         //console.log(rows);
         $gridpos.jqGrid('delGridRow', rows, {
           onclickSubmit: function(params) {
@@ -388,67 +388,69 @@
             calcBayar();
           }
         }
-      );
+        );
       }
 
       $('input[name=bayar]').priceFormat({prefix:'',thousandsSeparator:',',centsSeparator:'',centsLimit: ''});
       $('input[name=total]').priceFormat({prefix:'',thousandsSeparator:',',centsSeparator:'',centsLimit: ''});
 
       $("input[name=manual_item_kode]").select2({
-          allowClear: true,
-          width: "100%",
-          minimumInputLength: 0,
-          placeholder: "Cari Item",
-          id: function (bond) {
-              return bond.item_kode;
+        allowClear: true,
+        width: "100%",
+        minimumInputLength: 0,
+        placeholder: "Cari Item",
+        id: function (bond) {
+          return bond.item_kode;
+        },
+        ajax: {
+          url: '{{url_item}}',
+          dataType: 'json',
+          quietMillis: 100,
+          data: function (term, page) {
+            return { search: term, page: page, rows: 15 };
           },
-          ajax: {
-              url: '{{url_item}}',
-              dataType: 'json',
-              quietMillis: 100,
-              data: function (term, page) {
-                  return { search: term, page: page, rows: 15 };
-              },
-              results: function (data, page) {
-                  var more = (page * 15) < data.total;
-                  return {results: data.rows, more: more};
-              }
-          },
-          initSelection: function(element, callback) {
-              var id = $(element).val();
-              if (id !== "") {
-                  $.ajax("{{url_item}}", {
-                      dataType: "json",
-                      data: { search: id, page: 1, rows: 1 }
-                  }).done(function(data) { callback(data.rows[0]); });
-              }
-          },
-          escapeMarkup: function (markup) {
-              return markup;
-          },
-          formatSelection: function (repo) {
-              return repo.item_kode;
-          },
-          formatResult: function (repo) {
-              var markup = '<div class="row">' +
-                      '<div class="col-sm-12">' + repo.item_nama + '</div>' +
-                      '<ul style="font-size: 8px;">' +
-                      '<li class="col-sm-12">'+ repo.item_kode +'</li>' +
-                      '<li class="col-sm-12">'+ repo.item_uom +'</li>' +
-                      '<li class="col-sm-12">'+ repo.item_principal +'</li>' +
-                      '<li class="col-sm-12">'+ repo.item_grup+'</li>' +
-                      '</ul>';
-
-              markup += '</div>';
-
-              return markup;
+          results: function (data, page) {
+            var more = (page * 15) < data.total;
+            return {results: data.rows, more: more};
           }
+        },
+        initSelection: function(element, callback) {
+          var id = $(element).val();
+          if (id !== "") {
+            $.ajax("{{url_item}}", {
+              dataType: "json",
+              data: { search: id, page: 1, rows: 1 }
+            }).done(function(data) { callback(data.rows[0]); });
+          }
+        },
+        escapeMarkup: function (markup) {
+          return markup;
+        },
+        formatSelection: function (repo) {
+          return repo.item_kode;
+        },
+        formatResult: function (repo) {
+          var markup = '<div class="row">' +
+          '<div class="col-sm-12">' + repo.item_nama + '</div>' +
+          '<ul style="font-size: 8px;">' +
+          '<li class="col-sm-12">'+ repo.item_kode +'</li>' +
+          '<li class="col-sm-12">'+ repo.item_uom +'</li>' +
+          '<li class="col-sm-12">'+ repo.item_principal +'</li>' +
+          '<li class="col-sm-12">'+ repo.item_grup+'</li>' +
+          '</ul>';
+
+          markup += '</div>';
+
+          return markup;
+        }
       });
       $("input[name=manual_item_kode]").on("change", function(e) {
-          var data = e.added;
+        var data = e.added;
+        if(data != null) {
           $("input[name=manual_item_nama]").val(data.item_nama);
           cekStok_pos(data.item_kode, warehouse_pos, data.item_uom);
           cekPricelist_pos(data.item_kode, paramsPage["jenis-tagihan"]);
+        }
       });
       $("input[name=cari_pasien]").select2({
         allowClear: true,
@@ -599,10 +601,10 @@
               $.each(data.rows, function (i, ritem) {
                 item = {
                   label: ritem.cust_usr_nama
-                    + '<br>'
-                    + ritem.cust_usr_kode
-                    + ' '
-                    + ritem.cust_usr_alamat || '',
+                  + '<br>'
+                  + ritem.cust_usr_kode
+                  + ' '
+                  + ritem.cust_usr_alamat || '',
                   value: ritem.cust_usr_nama || '',
                   item: ritem
                 };
@@ -615,8 +617,8 @@
         }
       }).data("uiAutocomplete")._renderItem = function (ul, item) {
         return  $("<li>")
-            .append("<a style=\"font-size: 10px;\">" + item.label)
-            .appendTo(ul);
+        .append("<a style=\"font-size: 10px;\">" + item.label)
+        .appendTo(ul);
       };
       pasien_nama.bind("click", function() {$(this).autocomplete('search', "");});
       var dok = $("input[name=dokter]").autocomplete({
@@ -649,249 +651,249 @@
     });
 
 
-    function dataPasien(data)
-    {
-        var nama = $('input[name=pasien_nama]'),
-                alamat = $('textarea[name=pasien_alamat]'),
-                regno = $('input[name=reg_no]'),
-                regid = $('input[name=reg_id]'),
-                custid = $('input[name=cust_id]'),
-                jpasien = $('input[name=pasien_jenis]');
-        nama.val(data.nama);
-        alamat.text(data.alamat);
-        regno.val(data.regno);
-        regid.val(data.regid);
-        custid.val(data.custid);
-        jpasien.val(reg_status_pasien[data.jpasien]);
+function dataPasien(data)
+{
+  var nama = $('input[name=pasien_nama]'),
+  alamat = $('textarea[name=pasien_alamat]'),
+  regno = $('input[name=reg_no]'),
+  regid = $('input[name=reg_id]'),
+  custid = $('input[name=cust_id]'),
+  jpasien = $('input[name=pasien_jenis]');
+  nama.val(data.nama);
+  alamat.text(data.alamat);
+  regno.val(data.regno);
+  regid.val(data.regid);
+  custid.val(data.custid);
+  jpasien.val(reg_status_pasien[data.jpasien]);
 
-        $("input[name=price_list]").select2("val",data.jpasien == 3 ? "SWADANA" : "BPJS" );
-    }
-    function calc(){
-        var vbayar = $('input[name=bayar]').val().replace(/,/gi, "");
-        var total = $('input[name=total]').val().replace(/,/gi, "");
-        console.log(vbayar);
-        var bayar = vbayar > -1 ? vbayar : 0;
-        var kembali = parseInt(bayar) - parseInt(total);
+  $("input[name=price_list]").select2("val",data.jpasien == 3 ? "SWADANA" : "BPJS" );
+}
+function calc(){
+  var vbayar = $('input[name=bayar]').val().replace(/,/gi, "");
+  var total = $('input[name=total]').val().replace(/,/gi, "");
+  console.log(vbayar);
+  var bayar = vbayar > -1 ? vbayar : 0;
+  var kembali = parseInt(bayar) - parseInt(total);
 
-        $('input[name=kembali]').val(accounting.formatMoney((kembali > -1 ? kembali : 0), "Rp ", 2, ".", ","));
-    }
-    function calcBayar(){
-        var total = 0;
-        var rows = $gridpos.jqGrid('getRowData');
-        console.log(rows);
-        if(rows.length > 0) {
-            _.map(rows, function (row) {
-                total +=parseInt(row['item_amount']);
-            });
-            console.log(total);
-        }
+  $('input[name=kembali]').val(accounting.formatMoney((kembali > -1 ? kembali : 0), "Rp ", 2, ".", ","));
+}
+function calcBayar(){
+  var total = 0;
+  var rows = $gridpos.jqGrid('getRowData');
+  console.log(rows);
+  if(rows.length > 0) {
+    _.map(rows, function (row) {
+      total +=parseInt(row['item_amount']);
+    });
+    console.log(total);
+  }
 
-        $('input[name=total]').val(parseInt(total));
-        $('input[name=total]').focus();
-    }
-    </script>
+  $('input[name=total]').val(parseInt(total));
+  $('input[name=total]').focus();
+}
+</script>
 {% endblock %}
 {% block content %}
-    <form id="form-pos" class="form-horizontal" action="{{url_submit_status}}" method="POST" role="form">
+  <form id="form-pos" class="form-horizontal" action="{{url_submit_status}}" method="POST" role="form">
 
-        <div class="row">
-            <div class="col-sm-12">
-                <div class="block-inner">
-                    <div class="statistics-info">
-                        <a href="#" title="" class="bg-danger"><i class="icon-cart-plus"></i></a>
-                        <strong id="invoice_no">{{ data.invoice }}</strong><span class="pull-right"><strong>Kasir: {{ cashier }}</strong></span>
-                    </div>
-                    <div class="progress progress-micro">
-                        <div class="progress-bar progress-bar-danger" role="progressbar" aria-valuenow="90" aria-valuemin="0" aria-valuemax="100" style="width: 35%;">
-                            <span class="sr-only">30% Complete</span>
-                        </div>
-                    </div>
-                    <span>Sales Invoice #</span>
-                </div>
+    <div class="row">
+      <div class="col-sm-12">
+        <div class="block-inner">
+          <div class="statistics-info">
+            <a href="#" title="" class="bg-danger"><i class="icon-cart-plus"></i></a>
+            <strong id="invoice_no">{{ data.invoice }}</strong><span class="pull-right"><strong>Kasir: {{ cashier }}</strong></span>
+          </div>
+          <div class="progress progress-micro">
+            <div class="progress-bar progress-bar-danger" role="progressbar" aria-valuenow="90" aria-valuemin="0" aria-valuemax="100" style="width: 35%;">
+              <span class="sr-only">30% Complete</span>
             </div>
+          </div>
+          <span>Sales Invoice #</span>
         </div>
+      </div>
+    </div>
 
-        <h6 class="heading-hr"><i class="icon-paragraph-right2"></i>{{ title }}</h6>
-        <div class="block">
-            <div class="input-group input-group-lg">
-                <span class="input-group-addon"><i class="icon-calculate2"></i></span>
-                <input name="total" type="text" class="form-control" placeholder="0,00" value="0,00" style="text-align:right;" readonly/>
-                <input name="bayar_total" type="hidden" class="form-control" />
-                <span class="input-group-btn"><button type="button" data-toggle="modal" role="button" href="#form_payment" class="btn btn-info" >Bayar [F3]</button></span>
-            </div>
-        </div>
-
-        <div class="row">
-            <div class="col-sm-12">
-                <div class="block-inner">
-                    <div class="panel-body">
-                        <div class="form-group">
-                            <div class="row">
-                                <div class="col-sm-3">
-                                    <label>Nomer Pendaftaran:</label>
-                                    <input type="text" placeholder="Pasien No.Reg" class="form-control"
-                                           name="reg_no" value="{{ data.reg_no }}" />
-                                    <input type="hidden" name="reg_id" value="{{ data.reg_id }}" />
-                                    <input type="hidden" name="cust_id" value="{{ data.cust_id }}" />
-                                </div>
-                                <div class="col-sm-3">
-                                    <label>Pasien nama:</label>
-                                    <input type="text" placeholder="Pasien Nama" class="form-control"
-                                           name="pasien_nama" value="{{ data.pasien_nama }}" />
-                                </div>
-                                <div class="col-sm-6">
-                                    <label>Pencarian Pasien:</label>
-                                    <div class="input-group input-group">
-                                        <span class="input-group-addon"><i class="icon-user"></i></span>
-                                        <input name="cari_pasien" type="hidden" class="cari_pasien" value="{{ data.cari_pasien }}" />
-                                        <span class="input-group-btn"><button class="btn btn-danger" type="button">Pasien [F2]</button></span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <div class="row">
-                                <div class="col-sm-6">
-                                    <label>Pasien Alamat:</label>
-                                    <textarea rows="5" placeholder="Pasien Alamat" class="form-control"
-                                              name="pasien_alamat" >{{ data.pasien_alamat }}</textarea>
-                                </div>
-                                <div class="col-sm-6">
-                                    <label>Tagihan [F4]:</label>
-                                    <input type="hidden" placeholder="Jenis Tagihan"
-                                           name="price_list" value="{{ data.price_list }}"/>
-                                    <span class="help-block">e.g UMUM, ASKES, STMJ, JAMKESMAS</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <div class="row">
-                                <div class="col-sm-3">
-                                    <label>Jenis Pasien:</label>
-                                    <input type="text" placeholder="Jenis Pasien" class="form-control"
-                                           name="pasien_jenis" value="{{ data.pasien_jenis }}" />
-                                    <span class="help-block">jenis pasien saat registrasi. e.g SWADANA, BPJS ASKES, STMJ, JAMKESMAS</span>
-                                </div>
-                                <div class="col-sm-3">
-                                    <label>Dokter :</label>
-                                    <input type="text" placeholder="Cari nama Dokter" class="form-control"
-                                           name="dokter" value="{{ data.dokter }}"/>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <div class="row">
-                                <div class="col-sm-12">
-                                    <label>Keterangan:</label>
-                                    <textarea type="text" name="keterangan" class="form-control" rows="5">{{data.keterangan}}</textarea>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </form>
+    <h6 class="heading-hr"><i class="icon-paragraph-right2"></i>{{ title }}</h6>
     <div class="block">
-        <h6 class="heading-hr">
-            <i class="icon-table"></i> {{ gridtitle }}
-        </h6>
+      <div class="input-group input-group-lg">
+        <span class="input-group-addon"><i class="icon-calculate2"></i></span>
+        <input name="total" type="text" class="form-control" placeholder="0,00" value="0,00" style="text-align:right;" readonly/>
+        <input name="bayar_total" type="hidden" class="form-control" />
+        <span class="input-group-btn"><button type="button" data-toggle="modal" role="button" href="#form_payment" class="btn btn-info" >Bayar [F3]</button></span>
+      </div>
+    </div>
 
-        <div class="well">
-          <div class="form-group">
-            <div class="row">
-              <div class="col-sm-3">
-                <a id="item-add" href="{{ modal_form }}?height=600&width=800" title="Form Penjualan Item Obat" class="thickbox btn btn-primary"><i class="icon-box-add"></i>Tambah Data [F1]</a>
+    <div class="row">
+      <div class="col-sm-12">
+        <div class="block-inner">
+          <div class="panel-body">
+            <div class="form-group">
+              <div class="row">
+                <div class="col-sm-3">
+                  <label>Nomer Pendaftaran:</label>
+                  <input type="text" placeholder="Pasien No.Reg" class="form-control"
+                  name="reg_no" value="{{ data.reg_no }}" />
+                  <input type="hidden" name="reg_id" value="{{ data.reg_id }}" />
+                  <input type="hidden" name="cust_id" value="{{ data.cust_id }}" />
+                </div>
+                <div class="col-sm-3">
+                  <label>Pasien nama:</label>
+                  <input type="text" placeholder="Pasien Nama" class="form-control"
+                  name="pasien_nama" value="{{ data.pasien_nama }}" />
+                </div>
+                <div class="col-sm-6">
+                  <label>Pencarian Pasien:</label>
+                  <div class="input-group input-group">
+                    <span class="input-group-addon"><i class="icon-user"></i></span>
+                    <input name="cari_pasien" type="hidden" class="cari_pasien" value="{{ data.cari_pasien }}" />
+                    <span class="input-group-btn"><button class="btn btn-danger" type="button">Pasien [F2]</button></span>
+                  </div>
+                </div>
               </div>
-              <div class="col-sm-3">
-                <button onclick="_handleRemoveRows();" class="btn btn-primary"><i class="icon-box-add"></i>Hapus Item</button>
+            </div>
+            <div class="form-group">
+              <div class="row">
+                <div class="col-sm-6">
+                  <label>Pasien Alamat:</label>
+                  <textarea rows="5" placeholder="Pasien Alamat" class="form-control"
+                  name="pasien_alamat" >{{ data.pasien_alamat }}</textarea>
+                </div>
+                <div class="col-sm-6">
+                  <label>Tagihan [F4]:</label>
+                  <input type="hidden" placeholder="Jenis Tagihan"
+                  name="price_list" value="{{ data.price_list }}"/>
+                  <span class="help-block">e.g UMUM, ASKES, STMJ, JAMKESMAS</span>
+                </div>
+              </div>
+            </div>
+            <div class="form-group">
+              <div class="row">
+                <div class="col-sm-3">
+                  <label>Jenis Pasien:</label>
+                  <input type="text" placeholder="Jenis Pasien" class="form-control"
+                  name="pasien_jenis" value="{{ data.pasien_jenis }}" />
+                  <span class="help-block">jenis pasien saat registrasi. e.g SWADANA, BPJS ASKES, STMJ, JAMKESMAS</span>
+                </div>
+                <div class="col-sm-3">
+                  <label>Dokter :</label>
+                  <input type="text" placeholder="Cari nama Dokter" class="form-control"
+                  name="dokter" value="{{ data.dokter }}"/>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <div class="row">
+                <div class="col-sm-12">
+                  <label>Keterangan:</label>
+                  <textarea type="text" name="keterangan" class="form-control" rows="5">{{data.keterangan}}</textarea>
+                </div>
               </div>
             </div>
           </div>
-          <div class="form-group">
-            <div class="row">
-              <div class="col-sm-3">
-                <label>Kode Item[F6]:</label>
-                <input type="text" placeholder="Cari Kode item" name="manual_item_kode" />
-              </div>
-              <div class="col-sm-3">
-                <label>Nama Item:</label>
-                <input type="text" placeholder="Cari Nama item" class="form-control"
-                name="manual_item_nama" readonly/>
-              </div>
-              <div class="col-sm-3">
-                <label>Jumlah Item (Qty)[F7]:</label>
-                <input type="text" placeholder="Qty Item" class="form-control"
-                name="manual_qty" style="text-align: right;"/>
-                <input type="hidden" name="manual_uom" />
-                <input type="hidden" name="manual_actual_qty" />
-                <span id="manual_actual_qty" class="help-block">Total Stok Aktual:</span>
-              </div>
-              <div class="col-sm-3">
-                <label>Harga Jual[F7]:</label>
-                <input type="text" placeholder="Harga Jual Item" class="form-control"
-                name="manual_jual" style="text-align: right;"/>
-              </div>
-            </div>
-          </div>
+        </div>
+      </div>
+    </div>
+  </form>
+  <div class="block">
+    <h6 class="heading-hr">
+      <i class="icon-table"></i> {{ gridtitle }}
+    </h6>
 
-          <div style="margin-top: 23px;">
-            <table id="table-pos"></table>
-            <div id="jqGridPager"></div>
+    <div class="well">
+      <div class="form-group">
+        <div class="row">
+          <div class="col-sm-3">
+            <a id="item-add" href="{{ modal_form }}?height=600&width=800" title="Form Penjualan Item Obat" class="thickbox btn btn-primary"><i class="icon-box-add"></i>Tambah Data [F1]</a>
           </div>
+          <div class="col-sm-3">
+            <button onclick="_handleRemoveRows();" class="btn btn-primary"><i class="icon-box-add"></i>Hapus Item</button>
+          </div>
+        </div>
+      </div>
+      <div class="form-group">
+        <div class="row">
+          <div class="col-sm-3">
+            <label>Kode Item[F6]:</label>
+            <input type="text" placeholder="Cari Kode item" name="manual_item_kode" />
+          </div>
+          <div class="col-sm-3">
+            <label>Nama Item:</label>
+            <input type="text" placeholder="Cari Nama item" class="form-control"
+            name="manual_item_nama" readonly/>
+          </div>
+          <div class="col-sm-3">
+            <label>Jumlah Item (Qty)[F7]:</label>
+            <input type="text" placeholder="Qty Item" class="form-control"
+            name="manual_qty" style="text-align: right;"/>
+            <input type="hidden" name="manual_uom" />
+            <input type="hidden" name="manual_actual_qty" />
+            <span id="manual_actual_qty" class="help-block">Total Stok Aktual:</span>
+          </div>
+          <div class="col-sm-3">
+            <label>Harga Jual[F7]:</label>
+            <input type="text" placeholder="Harga Jual Item" class="form-control"
+            name="manual_jual" style="text-align: right;"/>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top: 23px;">
+        <table id="table-pos"></table>
+        <div id="jqGridPager"></div>
+      </div>
     </div>
     <!-- Form modal -->
     <div id="form_payment" class="modal fade" tabindex="-1" role="dialog">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                    <h4 class="modal-title"><i class="icon-cart-checkout"></i> Pembayaran tagihan</h4>
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h4 class="modal-title"><i class="icon-cart-checkout"></i> Pembayaran tagihan</h4>
+          </div>
+
+          <!-- Form inside modal -->
+          <form action="#" role="form">
+
+            <div class="modal-body with-padding">
+              <div class="block-inner text-danger">
+                <h6 class="heading-hr">Kasir: {{ cashier }} <small class="display-block">Mohon diisi dengan teliti detail pembayaran tagihan</small></h6>
+              </div>
+
+              <div class="block">
+                <div class="input-group input-group-lg">
+                  <span class="input-group-addon"><i class="icon-calculate2"></i></span>
+                  <input name="total-calc" type="text" class="form-control" placeholder="0,00" style="text-align:right;" readonly/>
                 </div>
+              </div>
 
-                <!-- Form inside modal -->
-                <form action="#" role="form">
+              <div class="form-group">
+                <div class="row">
+                  <div class="col-sm-12">
+                    <label>Bayar</label>
+                    <input name="bayar" type="text" placeholder="0,00" style="text-align:right;" class="form-control" />
+                  </div>
+                </div>
+              </div>
 
-                    <div class="modal-body with-padding">
-                        <div class="block-inner text-danger">
-                            <h6 class="heading-hr">Kasir: {{ cashier }} <small class="display-block">Mohon diisi dengan teliti detail pembayaran tagihan</small></h6>
-                        </div>
-
-                        <div class="block">
-                            <div class="input-group input-group-lg">
-                                <span class="input-group-addon"><i class="icon-calculate2"></i></span>
-                                <input name="total-calc" type="text" class="form-control" placeholder="0,00" style="text-align:right;" readonly/>
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <div class="row">
-                                <div class="col-sm-12">
-                                    <label>Bayar</label>
-                                    <input name="bayar" type="text" placeholder="0,00" style="text-align:right;" class="form-control" />
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <div class="row">
-                                <div class="col-sm-12">
-                                    <label>kembali</label>
-                                    <input name="kembali" type="text" placeholder="0,00" style="text-align:right;" class="form-control" readonly/>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-warning" data-dismiss="modal">Keluar [ESC]</button>
-                        <button id="pay-nota" type="button" class="btn btn-primary">Bayar [F5]</button>
-                    </div>
-
-                </form>
+              <div class="form-group">
+                <div class="row">
+                  <div class="col-sm-12">
+                    <label>kembali</label>
+                    <input name="kembali" type="text" placeholder="0,00" style="text-align:right;" class="form-control" readonly/>
+                  </div>
+                </div>
+              </div>
             </div>
+
+            <div class="modal-footer">
+              <button type="button" class="btn btn-warning" data-dismiss="modal">Keluar [ESC]</button>
+              <button id="pay-nota" type="button" class="btn btn-primary">Bayar [F5]</button>
+            </div>
+
+          </form>
         </div>
+      </div>
     </div>
     <!-- /form modal -->
-{% endblock %}
+  {% endblock %}

@@ -67,6 +67,8 @@ class Pasien_Controller extends \Zi\Lock_c
     $req = APP::request();
     $params = $req->get();
     $search = ZiUtil::is_set('search', $params);
+    $params["sort"] = "cust_usr_nama";
+    $params["order"] = "ASC";
     $query = "cust_usr_nama ILIKE '%" . $search ."%' OR cust_usr_kode LIKE '%".$search."%'";
     $results = ZiUtil::search_result_DB($query, $params, 'RegPasien');
 

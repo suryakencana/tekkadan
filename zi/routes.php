@@ -166,5 +166,9 @@ Route::controller('/api/1.0/pos','selling@dataset_penjualan')->get();
 
 Route::controller('/api/1.0/pos(/:id)','selling@detail_penjualan')->get();
 
+// sementara gawe Auto2000GPS
+// Route::controller('/cc/login/updateloc/:idusers/:datetime/:longitude/:latitude')->get();
+Route::controller('/cc/login/moblog/:iduser/:password', 'gpstracker@login')->get();
+
 Route::controller('/u0','login@index')->post()->get()->name('login');
 Route::controller('/u7','login@getOut')->get()->name('logout');

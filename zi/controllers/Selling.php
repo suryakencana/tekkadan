@@ -209,6 +209,7 @@ class Selling_Controller extends \Zi\Lock_c
             "fol_nama" => $row["item_nama"],
             "fol_jumlah" => $row["item_qty"],
             "fol_nominal" => $amount,
+            "fol_lunas" => "n",
             "fol_nominal_satuan" => $row["item_price"],
             "fol_waktu" => date("Y-m-d H:i:s"),
             "id_biaya" => $row["item_kode"],
@@ -313,7 +314,7 @@ class Selling_Controller extends \Zi\Lock_c
       App::flash('error', $e);
     }
 
-    APP::redirect('selling.pos');
+    //APP::redirect('selling.pos');
   }
 
   public function print_invoice($id)
